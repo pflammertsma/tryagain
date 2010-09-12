@@ -1,0 +1,15 @@
+<!ENTITY name.tryagain "TryAgain">
+<!ENTITY menu.tryagain "TryAgain inschakelen">
+<!ENTITY options.title "TryAgain opties">
+<!ENTITY options.timeout "Timeout:">
+<!ENTITY options.seconds "seconden">
+<!ENTITY options.repeat "Maximum aantal keren:">
+<!ENTITY options.showmenu "Toon item in menu Extra">
+<!ENTITY options.hidetips "Verberg netwerk diagnostiek tips">
+<!ENTITY options.useauditing "Automatisch de status van de site controleren">
+<!ENTITY text.ifatfirst "Als het niet meteen lukt, probeer het...">
+<!ENTITY text.stoptrying "Stop met proberen">
+<!ENTITY text.trywithcache "Probeer anders een gearchiveerde versie van de pagina te bezoeken met:">
+<!ENTITY text.viewwith "Bekijk met">
+<!ENTITY text.googlecache "Google Cache">
+<!ENTITY text.waybackcache "WayBack Archive">

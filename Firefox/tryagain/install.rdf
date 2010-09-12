@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+    <em:id>{992791ee-61dc-7b98-a8fd-dc49b7deeee9}</em:id>
+    
+    <!-- Target Application: Firefox -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>3.0</em:minVersion>
+        <em:maxVersion>4.0b5pre</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
+    <em:name>TryAgain</em:name>
+    <em:version>3.4.1</em:version>
+    <em:type>2</em:type>
+    <em:description>TryAgain keeps trying to load a webpage when the server cannot be reached.</em:description>
+    <em:homepageURL>http://getsatisfaction.com/tryagain/products/tryagain_tryagain_for_firefox</em:homepageURL>
+
+    <em:creator>Mathijs Lagerberg</em:creator>
+    <em:developer>Paul Lammertsma</em:developer>
+    <em:contributor>Aldo Vargas</em:contributor>
+    <em:contributor>Eric Lammertsma</em:contributor>
+
+    <em:optionsURL>chrome://tryagain/content/options.xul</em:optionsURL>
+    <em:iconURL>chrome://tryagain/skin/icon.png</em:iconURL>
+
+    <em:localized>
+      <Description>
+        <em:locale>nl-NL</em:locale>
+        <em:name>TryAgain</em:name>
+        <em:description>TryAgain probeert steeds opnieuw een pagina te laden wanneer de server niet bereikt kan worden.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>pt-BR</em:locale>
+        <em:name>TryAgain</em:name>
+        <em:description>TenteDeNovo continua tentando carregar uma página quando o servidor não responde.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>pt-PT</em:locale>
+        <em:name>TryAgain</em:name>
+        <em:description>TenteDeNovo continua tentando carregar uma página quando o servidor não responde.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>es-ES</em:locale>
+        <em:name>TryAgain</em:name>
+        <em:description>IntentarDeNuevo sigue intentando cargar una página cuando el servidor no puede ser alcanzado.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>fr-FR</em:locale>
+        <em:name>TryAgain</em:name>
+        <em:description>EssayerDeNouveau continue d'essayer de charger une page lorsque le serveur ne répond pas.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>ru-RU</em:locale>
+        <em:name>TryAgain</em:name>
+        <em:description>ПопробоватьЕщеРаз продолжает попытке загрузить веб-страницу, если сервер не отвечает.</em:description>
+      </Description>
+    </em:localized>
+    <em:localized>
+      <Description>
+        <em:locale>zh-CN</em:locale>
+        <em:name>TryAgain</em:name>
+        <em:description>每当服务器不响应，再试一次将继续尝试加载一个网页。</em:description>
+      </Description>
+    </em:localized>
+
+    <em:file>
+      <Description about="urn:mozilla:extension:file:tryagain.jar">
+        <em:package>content/</em:package>
+        <em:locale>locale/en/</em:locale>
+        <em:locale>locale/en-GB/</em:locale>
+        <em:locale>locale/en-US/</em:locale>
+        <em:locale>locale/de/</em:locale>
+        <em:locale>locale/nl/</em:locale>
+        <em:locale>locale/nl-NL/</em:locale>
+        <em:locale>locale/pt/</em:locale>
+        <em:locale>locale/pt-BR/</em:locale>
+        <em:locale>locale/pt-PT/</em:locale>
+        <em:locale>locale/es-ES/</em:locale>
+        <em:locale>locale/fr/</em:locale>
+        <em:locale>locale/fr-FR/</em:locale>
+        <em:locale>locale/ru/</em:locale>
+        <em:locale>locale/ru-RU/</em:locale>
+        <em:locale>locale/sr/</em:locale>
+        <em:locale>locale/zh-CN/</em:locale>
+	    <em:skin>skin/</em:skin>
+      </Description>
+    </em:file>
+
+  </Description>
+</RDF>

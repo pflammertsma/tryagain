@@ -1,0 +1,15 @@
+<!ENTITY name.tryagain "TryAgain">
+<!ENTITY menu.tryagain "Activer TryAgain">
+<!ENTITY options.title "Options de l'extension TryAgain">
+<!ENTITY options.timeout "Délai imparti:">
+<!ENTITY options.seconds "secondes">
+<!ENTITY options.repeat "Nombre maximum d'essais:">
+<!ENTITY options.showmenu "Afficher dans le menu Outils">
+<!ENTITY options.hidetips "Masquer les conseils de diagnostic réseau">
+<!ENTITY options.useauditing "Vérifier automatiquement le statut de site Web">
+<!ENTITY text.ifatfirst "Après un premier échec, réessayer et...">
+<!ENTITY text.stoptrying "Ne plus réessayer">
+<!ENTITY text.trywithcache "Alternativement, tenter d'afficher une version en cache la page:">
+<!ENTITY text.viewwith "Afficher avec">
+<!ENTITY text.googlecache "Le Cache Google">
+<!ENTITY text.waybackcache "l'Archive Wayback">

@@ -1,0 +1,15 @@
+<!ENTITY name.tryagain "再试一次">
+<!ENTITY menu.tryagain "启用 再试一次">
+<!ENTITY options.title "再试一次 选项">
+<!ENTITY options.timeout "重试间隔时间:">
+<!ENTITY options.seconds "秒">
+<!ENTITY options.repeat "最大重试次数">
+<!ENTITY options.showmenu "显示工具菜单项">
+<!ENTITY options.hidetips "Hide network diagnostic tips">
+<!ENTITY options.useauditing "Automatically check website status">
+<!ENTITY text.ifatfirst "如果第一次页面没有成功载入，请重试…">
+<!ENTITY text.stoptrying "停止重试">
+<!ENTITY text.trywithcache "Alternatively, try viewing a cached version of the page in:">
+<!ENTITY text.viewwith "(歌谷网页缓存)中查看">
+<!ENTITY text.googlecache "在 Google Cache">
+<!ENTITY text.waybackcache "在 WayBack Archive">
