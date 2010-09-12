@@ -1,0 +1,24 @@
+overlay     chrome://browser/content/browser.xul    chrome://tryagain/content/tryagain.xul
+override    chrome://global/content/netError.xhtml  chrome://tryagain/content/netError.xhtml
+
+content	tryagain	jar:chrome/tryagain.jar!/content/ contentaccessible=yes
+
+skin	tryagain	classic/1.0	jar:chrome/tryagain.jar!/skin/
+
+locale	tryagain	en    jar:chrome/tryagain.jar!/locale/en/
+locale	tryagain	en-GB jar:chrome/tryagain.jar!/locale/en-GB/
+locale	tryagain	en-US jar:chrome/tryagain.jar!/locale/en-US/
+locale	tryagain	de    jar:chrome/tryagain.jar!/locale/de/
+locale	tryagain	nl    jar:chrome/tryagain.jar!/locale/nl/
+locale	tryagain	nl-NL jar:chrome/tryagain.jar!/locale/nl-NL/
+locale	tryagain	pt    jar:chrome/tryagain.jar!/locale/pt/
+locale	tryagain	pt-BR jar:chrome/tryagain.jar!/locale/pt-BR/
+locale	tryagain	pt-PT jar:chrome/tryagain.jar!/locale/pt-PT/
+locale	tryagain	es-AR jar:chrome/tryagain.jar!/locale/es-AR/
+locale	tryagain	es-ES jar:chrome/tryagain.jar!/locale/es-ES/
+locale	tryagain	fr    jar:chrome/tryagain.jar!/locale/fr/
+locale	tryagain	fr-FR jar:chrome/tryagain.jar!/locale/fr-FR/
+locale  tryagain	ru    jar:chrome/tryagain.jar!/locale/ru/
+locale  tryagain	ru-RU jar:chrome/tryagain.jar!/locale/ru-RU/
+locale  tryagain	sr    jar:chrome/tryagain.jar!/locale/sr/
+locale  tryagain	zh-CN jar:chrome/tryagain.jar!/locale/zh-CN/

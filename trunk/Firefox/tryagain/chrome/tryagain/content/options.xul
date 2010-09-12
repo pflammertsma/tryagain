@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://tryagain/locale/tryagain.dtd">
+
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+        id="tryagain_options"
+        title="&options.title;"
+        buttons="accept, cancel"
+        ondialogaccept="TryAgain_prefs.save();"
+        onload="TryAgain_prefs.load();"
+	>
+	<script type="application/x-javascript" src="chrome://tryagain/content/tryagain_options.js"/>
+    
+	<groupbox>
+        <vbox>
+            <label value="&options.timeout;"/>
+            <hbox>
+                <textbox id="tryagainTimeout" rows="10" maxlength="5"/><label value="&options.seconds;"/>
+            </hbox>
+            <label value="&options.repeat;"/>
+            <textbox id="tryagainRepeat" rows="10" maxlength="5"/>
+            <checkbox id="tryagainShowMenu" label="&options.showmenu;"/>
+            <checkbox id="tryagainHideTips" label="&options.hidetips;"/>
+            <checkbox id="tryagainUseAuditing" label="&options.useauditing;"/>
+        </vbox>
+	</groupbox>
+</dialog>

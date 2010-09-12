@@ -1,0 +1,15 @@
+<!ENTITY name.tryagain "IntentarDeNuevo">
+<!ENTITY menu.tryagain "Activar IntentarDeNuevo">
+<!ENTITY options.title "Opciones IntentarDeNuevo">
+<!ENTITY options.timeout "Tiempo de espera:">
+<!ENTITY options.seconds "segundos">
+<!ENTITY options.repeat "El número de intentos como máximo:">
+<!ENTITY options.showmenu "Mostrar la opción en el ménu Herramientas">
+<!ENTITY options.hidetips "Ocultar sugerencias de la red de diagnÃ³stico">
+<!ENTITY options.useauditing "Automáticamente verificar el estado del sitio">
+<!ENTITY text.ifatfirst "Si no tienes éxito al principio, inténtalo...">
+<!ENTITY text.stoptrying "Cancelar">
+<!ENTITY text.trywithcache "Como alternativa, intente visualizar una versión en caché de la página en:">
+<!ENTITY text.viewwith "Ver con">
+<!ENTITY text.googlecache "Google Cache">
+<!ENTITY text.waybackcache "Archivo WayBack">

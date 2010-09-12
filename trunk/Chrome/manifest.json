@@ -1,0 +1,26 @@
+{
+  "name": "TryAgain",
+  "version": "0.1",
+  "description": "TryAgain keeps trying to load a webpage when the server cannot be reached.",
+  "icons": {
+    "32": "icon.png"
+  },
+  "background_page": "background.html",
+  "content_scripts": [
+    {
+      "matches": ["chrome://chromewebdata/*"],
+      "js": ["jquery.js", "tryagain_content_script.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "permissions": [
+    "tabs",
+    "http://*/*",
+    "http://ajax.googleapis.com/"
+  ],
+  "page_action": {
+    "default_name": "TryAgain",
+    "default_icon": "icon.png",
+    "popup": "popup.html"
+  }
+}

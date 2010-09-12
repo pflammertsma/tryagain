@@ -1,0 +1,31 @@
+<html>
+  <head>
+    <script>
+
+      var tabUrl, tabId;
+
+      chrome.extension.onRequest.addListener(
+        function(request, sender, sendResponse) {
+          tabUrl = sender.tab.url;
+          tabId = sender.tab.id;
+          updateTimer();
+          sendResponse({url: sender.tab.url});
+          if (request.attempt == 1) {
+            setTimeout(
+              function() {
+                updateTimer();
+              }, 1000
+            );
+          }
+        }
+      );
+
+      function updateTimer() {
+        if (false) {
+          chrome.tabs.update(tabId, {url: tabUrl});
+        }
+      }
+
+    </script>
+  </head>
+</html>
