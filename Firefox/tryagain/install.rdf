@@ -81,21 +81,18 @@
     <em:file>
       <Description about="urn:mozilla:extension:file:tryagain.jar">
         <em:package>content/</em:package>
-        <em:locale>locale/en/</em:locale>
-        <em:locale>locale/en-GB/</em:locale>
-        <em:locale>locale/en-US/</em:locale>
         <em:locale>locale/de/</em:locale>
-        <em:locale>locale/nl/</em:locale>
-        <em:locale>locale/nl-NL/</em:locale>
-        <em:locale>locale/pt/</em:locale>
-        <em:locale>locale/pt-BR/</em:locale>
-        <em:locale>locale/pt-PT/</em:locale>
+        <em:locale>locale/en/</em:locale>
+        <em:locale>locale/en-US/</em:locale>
         <em:locale>locale/es-ES/</em:locale>
         <em:locale>locale/fr/</em:locale>
-        <em:locale>locale/fr-FR/</em:locale>
+        <em:locale>locale/it-IT/</em:locale>
+        <em:locale>locale/nl/</em:locale>
+        <em:locale>locale/pt-BR/</em:locale>
+        <em:locale>locale/pt-PT/</em:locale>
         <em:locale>locale/ru/</em:locale>
-        <em:locale>locale/ru-RU/</em:locale>
         <em:locale>locale/sr/</em:locale>
+        <em:locale>locale/tr-TR/</em:locale>
         <em:locale>locale/zh-CN/</em:locale>
 	    <em:skin>skin/</em:skin>
       </Description>

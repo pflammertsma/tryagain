@@ -7,9 +7,3 @@
 <!ENTITY options.showmenu "Eintrag im &quot;Extras&quot;-Menü zeigen">
 <!ENTITY options.hidetips "Netzwerkdiagnosetipps verstecken">
 <!ENTITY options.useauditing "Status der Webseite automatisch überprüfen">
-<!ENTITY text.ifatfirst "Wenn es beim ersten Mal nicht funktioniert, versuche und...">
-<!ENTITY text.stoptrying "Versuche stoppen">
-<!ENTITY text.trywithcache "Andernfalls, versuche eine zwischengespeicherte Version der Seite zu zeigen, im:">
-<!ENTITY text.viewwith "Anzeigen mit">
-<!ENTITY text.googlecache "Google Cache">
-<!ENTITY text.waybackcache "WayBack Archiv">
