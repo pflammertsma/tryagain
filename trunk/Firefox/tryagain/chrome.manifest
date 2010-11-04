@@ -1,5 +1,5 @@
 overlay     chrome://browser/content/browser.xul    chrome://tryagain/content/tryagain.xul
-override    chrome://global/content/netError.xhtml  chrome://tryagain/content/netError.xhtml
+; override    chrome://global/content/netError.xhtml  chrome://tryagain/content/netError.xhtml
 
 content	tryagain	jar:chrome/tryagain.jar!/content/ contentaccessible=yes
 

@@ -29,7 +29,6 @@ function disableTryAgain() {
     document.getElementById("tryagainContainer").style.display = "none";
     document.getElementById("errorTryAgain").style.display = "none";
     document.getElementById("errorStopRetry").style.display = "none";
-    document.getElementById("errorViewWith").style.display = "none";
     document.getElementById("errorGoogleCache").style.display = "none";
     document.getElementById("errorWebArchive").style.display = "none";
     document.getElementById("retry_x_of_y").style.display = "none";
@@ -44,10 +43,10 @@ function retryThisExtended() {
 function autoRetryThis() {
     var strbundle = document.getElementById("strings");
     
-    if (retrying) return;
+    if (retrying || typeof p_timeout == 'undefined') return;
     
     if (auto_retry != RETRY_NORMAL) {
-        if(auto_retry == RETRY_CANCEL) {
+        if (auto_retry == RETRY_CANCEL && text_cancelled) {
             // User has pressed the cancel button
             document.getElementById("errorAutoRetry3").innerHTML = text_cancelled;
         }
@@ -156,7 +155,7 @@ function retryThis() {
 
 function initPage() {
     var err = getErrorCode();
-
+    
     // if it's an unknown error or there's no title or description
     // defined, get the generic message
     var errTitle = document.getElementById("et_" + err);
@@ -200,7 +199,7 @@ function initPage() {
 
         // Also, if they specified a CSS class, they must supply their own
         // favicon.    In order to trigger the browser to repaint though, we
-        // need to remove/add the link element. 
+        // need to remove/add the link element.
         var favicon = document.getElementById("favicon");
         var faviconParent = favicon.parentNode;
         faviconParent.removeChild(favicon);

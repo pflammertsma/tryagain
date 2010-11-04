@@ -63,8 +63,7 @@
     }
     </style>
     
-    <script type="application/x-javascript" id="variabels"></script>
-
+    <script type="application/x-javascript" id="tryAgainVars"></script>
     <script type="text/javascript" src="chrome://tryagain/content/netError.js"/>
   </head>
 
@@ -183,17 +182,10 @@
         </div>
       </div>
 
-      <!-- Retry Button -->
-      <button id="errorIncrement" oncommand="autoRetryThis();" style="display:none;"></button>
-      <button id="errorTryAgain" oncommand="retryThisExtended();">&retry.label;</button>
-      <button id="errorStopRetry" oncommand="stopRetry();">&text.stoptrying;</button>
-      <!-- Button that should show a context menu
-      <button id="errorViewWith" oncommand="viewWith();">&text.viewwith;</button>
-      -->
-      <!-- Old links
-      <a id="errorGoogleCache" href="javascript:gotoGoogleCache();" style="margin-left: 80px; float: left;">&text.googlecache;</a>
-      <a id="errorWebArchive" href="javascript:gotoWayBackArchive();" style="margin-left: 80px; float: left; clear: left;">&text.waybackcache;</a>
-      -->
+      <!-- TryAgain buttons -->
+      <button id="errorIncrement" onclick="autoRetryThis();" style="display:none;"></button>
+      <button id="errorTryAgain" onclick="retryThisExtended();">&retry.label;</button>
+      <button id="errorStopRetry" onclick="stopRetry();">&text.stoptrying;</button>
     </div>
     </div>
   
