@@ -1,0 +1,9 @@
+<!ENTITY name.tryagain "TryAgain">
+<!ENTITY menu.tryagain "TryAgain etkinleştir">
+<!ENTITY options.title "TryAgain seçenekler">
+<!ENTITY options.timeout "Zamanaşımı:">
+<!ENTITY options.seconds "saniye">
+<!ENTITY options.repeat "En fazla deneme:">
+<!ENTITY options.showmenu "Araçlar menüsünde göster">
+<!ENTITY options.hidetips "Network tanı ipuçlarını gizle">
+<!ENTITY options.useauditing "Siteyi otomatik kontrol et">

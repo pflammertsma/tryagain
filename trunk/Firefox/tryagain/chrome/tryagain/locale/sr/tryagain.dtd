@@ -7,9 +7,3 @@
 <!ENTITY options.showmenu "Прикажи ставку у менију „Алатке”">
 <!ENTITY options.hidetips "Сакриј савете за откривање грешака са мрежом">
 <!ENTITY options.useauditing "Аутоматски провери стање странице">
-<!ENTITY text.ifatfirst "Ако не успе из првог покушаја, покушај и...">
-<!ENTITY text.stoptrying "Прекини покушавање">
-<!ENTITY text.trywithcache "Можете да пробате видети кеширану верзију странице у:">
-<!ENTITY text.viewwith "Отвори помоћу:">
-<!ENTITY text.googlecache "Google кеш">
-<!ENTITY text.waybackcache "WayBack архив">

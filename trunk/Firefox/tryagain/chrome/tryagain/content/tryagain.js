@@ -16,6 +16,24 @@ var TryAgain = {
         },
     console: Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService),
     debug: function(msg) { TryAgain.console.logStringMessage(msg); },
+    error: function(msg) { Components.utils.reportError(msg); },
+
+    getString: function(str) {
+        try {
+            return TryAgain.strbundle.getString(str);
+        } catch (e) {
+            TryAgain.error("missing string: " + str + "; " + e);
+            return str;
+        }
+    },
+    getFormattedString: function(str, replacements) {
+        try {
+            return TryAgain.strbundle.getFormattedString(str, replacements);
+        } catch (e) {
+            TryAgain.error("missing string: " + str);
+            return str;
+        }  
+    },  
 
     // Executed when Firefox loads
     init: function() {
@@ -199,13 +217,10 @@ var TryAgain = {
                 }
                 break;
             default:
-                // Bad ready state
-                TryAgain.debug(id + ' returned bad readyState: ' + httpRequest.readyState);
-                TryAgain.downStatus[id] = TryAgain.STATUS_UNKNOWN;
+                // No response yet; will try again later
                 return false;
             }
         }
-        TryAgain.debug(id + ': ' + TryAgain.downStatus[id]);
         try {
             var server = TryAgain.downCheckServers[id];
             var status = doc.getElementById('status_'+id);
@@ -218,37 +233,37 @@ var TryAgain = {
             case TryAgain.STATUS_POLLING:
                 status.innerHTML =
                     '<a id="error_'+id+'" href="'+TryAgain.urlify(server[0], url)+'">' +
-                    TryAgain.strbundle.getString("text."+id) + '</a>' +
-                    '<div>' + TryAgain.strbundle.getString("text.site_down_checking") + '</div>';
+                    TryAgain.getString("text."+id) + '</a>' +
+                    '<div>' + TryAgain.getString("text.site_down_checking") + '</div>';
                 break;
             case TryAgain.STATUS_LOCAL:
                 status.innerHTML =
                     '<a id="error_'+id+'" href="'+TryAgain.urlify(server[0], url)+'">' +
-                    TryAgain.strbundle.getString("text."+id) + '</a>' +
-                    '<div style="color:red;"><b>' + TryAgain.strbundle.getString("text.site_down_local") + '</b> ' +
+                    TryAgain.getString("text."+id) + '</a>' +
+                    '<div style="color:red;"><b>' + TryAgain.getString("text.site_down_local") + '</b> ' +
                     '<a href="'+TryAgain.urlify('http://proxy.org/proxy.pl?url=%url_escaped%&proxy=proxify.com', url) + '">' +
-                    TryAgain.strbundle.getString("text.try_proxy") + '</a>' +
+                    TryAgain.getString("text.try_proxy") + '</a>' +
                     '</div>';
                 break;
             case TryAgain.STATUS_GLOBAL:
                 status.innerHTML =
                     '<a id="error_'+id+'" href="'+TryAgain.urlify(server[0], url)+'">' +
-                    TryAgain.strbundle.getString("text."+id) + '</a>' +
-                    '<div><b>' + TryAgain.strbundle.getString("text.site_down_global") + '</b></div>';
+                    TryAgain.getString("text."+id) + '</a>' +
+                    '<div><b>' + TryAgain.getString("text.site_down_global") + '</b></div>';
                 var regexp2 = new RegExp("http[s]?://([^/]*)", "gi");
                 var matches = regexp2.exec(url);
                 if (matches != null && matches.length == 2) {
                     url = matches[1];
                 }
                 var error_div = doc.getElementById('errorShortDescText');
-                error_div.innerHTML = TryAgain.strbundle.getFormattedString("text.error_site_down", [url]);
+                error_div.innerHTML = TryAgain.getFormattedString("text.error_site_down", [url]);
                 break;
             case TryAgain.STATUS_UNKNOWN:
             default:
                 // The website returned an unknown title
                 status.innerHTML =
-                    TryAgain.strbundle.getString("text.check_with") + ' <a id="error_'+id+'" href="'+TryAgain.urlify(server[0], url)+'">' +
-                    TryAgain.strbundle.getString("text."+id) + '</a>';
+                    TryAgain.getString("text.check_with") + ' <a id="error_'+id+'" href="'+TryAgain.urlify(server[0], url)+'">' +
+                    TryAgain.getString("text."+id) + '</a>';
                 break;
             }
         } catch (e) {
@@ -280,9 +295,9 @@ var TryAgain = {
         // Check if document is netError.xhtml
         if (doc.documentURI.substr(0,14)=="about:neterror") {
             var script1 = doc.getElementsByTagName("script")[0];
-            var extraHTML = "var text_cancelled = '"+TryAgain.strbundle.getString("text.cancelled")+"';\n"
-                               + "var text_tryagain = '"+TryAgain.strbundle.getString("text.tryagain")+"';\n"
-                               + "var text_tried_times = '"+TryAgain.strbundle.getString("text.tried_times")+"';\n";
+            var extraHTML = "var text_cancelled = '"+TryAgain.getString("text.cancelled")+"';\n"
+                               + "var text_tryagain = '"+TryAgain.getString("text.tryagain")+"';\n"
+                               + "var text_tried_times = '"+TryAgain.getString("text.tried_times")+"';\n";
 
             var tryAgain_btn = doc.getElementById("errorTryAgain");
 
@@ -304,23 +319,8 @@ var TryAgain = {
             var vars = doc.createElement("script");
             script1.parentNode.appendChild(vars);
 
-            var stopRetry_btn = doc.createElement("button");
-            if (typeof tryAgain_btn != 'button') {
-                stopRetry_btn.style.color = "buttontext";
-                stopRetry_btn.style.margin = "1px 5px 2px";
-                stopRetry_btn.style.minWidth = "6.3em";
-                stopRetry_btn.style.MozAppearance = "button";
-                stopRetry_btn.style.MozBinding = "url('chrome://global/content/bindings/button.xml#button')";
-                stopRetry_btn.style.font = "message-box";
-                stopRetry_btn.style.verticalAlign = "bottom";
-                stopRetry_btn.style.height = "26px";
-                stopRetry_btn.title = typeof tryAgain_btn;
-                var txt = doc.createElement("span");
-                txt.innerHTML = "Try Again";
-                stopRetry_btn.appendChild(txt);
-            } else {
-                stopRetry_btn.innerHTML = TryAgain.strbundle.getFormattedString("text.stop_trying", []);
-            }
+            var stopRetry_btn = doc.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "xul:button");
+            stopRetry_btn.setAttribute("label", TryAgain.getFormattedString("text.stop_trying", []));
             stopRetry_btn.setAttribute("onclick", "stopRetry();");
             stopRetry_btn.setAttribute("id", "errorStopRetry");
             tryAgain_btn.parentNode.appendChild(stopRetry_btn);
@@ -352,18 +352,18 @@ var TryAgain = {
             tryagainCaches.appendChild(li);
 
             li = doc.createElement("li");
-            li.innerHTML = TryAgain.strbundle.getFormattedString("text.view_with", []) + " ";
+            li.innerHTML = TryAgain.getFormattedString("text.view_with", []) + " ";
             var a = doc.createElement("a");
             a.setAttribute("id", "errorGoogleCache");
-            a.innerHTML = TryAgain.strbundle.getFormattedString("text.cache_google", []);
+            a.innerHTML = TryAgain.getFormattedString("text.cache_google", []);
             li.appendChild(a);
             tryagainCaches.appendChild(li);
 
             li = doc.createElement("li");
-            li.innerHTML = TryAgain.strbundle.getFormattedString("text.view_with", []) + " ";
+            li.innerHTML = TryAgain.getFormattedString("text.view_with", []) + " ";
             a = doc.createElement("a");
             a.setAttribute("id", "errorWebArchive");
-            a.innerHTML = TryAgain.strbundle.getFormattedString("text.cache_wayback", []);
+            a.innerHTML = TryAgain.getFormattedString("text.cache_wayback", []);
             li.appendChild(a);
             tryagainCaches.appendChild(li);
 
@@ -374,7 +374,7 @@ var TryAgain = {
             var errorAutoRetry1 = doc.createElement("div");
             errorAutoRetry1.setAttribute("id", "errorAutoRetry1");
             tryagainContainer.appendChild(errorAutoRetry1);
-            errorAutoRetry1.innerHTML = TryAgain.strbundle.getFormattedString("text.if_at_first", []);
+            errorAutoRetry1.innerHTML = TryAgain.getFormattedString("text.if_at_first", []);
 
             var errorAutoRetry2 = doc.createElement("span");
             errorAutoRetry2.setAttribute("id", "errorAutoRetry2");
@@ -441,12 +441,12 @@ var TryAgain = {
                     tab.setAttribute("tryagain_rep", repeat);
 
                     if (max_repeat==0) {
-                        retry_x_of_y.innerHTML = TryAgain.strbundle.getFormattedString("text.try_of_infinite", [repeat]);
+                        retry_x_of_y.innerHTML = TryAgain.getFormattedString("text.try_of_infinite", [repeat]);
                     } else {
-                        retry_x_of_y.innerHTML = TryAgain.strbundle.getFormattedString("text.try_of", [repeat, max_repeat]);
+                        retry_x_of_y.innerHTML = TryAgain.getFormattedString("text.try_of", [repeat, max_repeat]);
                     }
                 } else {
-                    retry_x_of_y.innerHTML = TryAgain.strbundle.getFormattedString("text.tried_times", [repeat]);
+                    retry_x_of_y.innerHTML = TryAgain.getFormattedString("text.tried_times", [repeat]);
                     retry_x_of_y.setAttribute("style", "color: red; font-weight: bold;");
                     var tryagainContainer = doc.getElementById("tryagainContainer");
                     tryagainContainer.setAttribute("style", "display: none;");
@@ -492,7 +492,6 @@ var TryAgain = {
                         return;
                     }
                     var events = [];
-                    TryAgain.debug("repetition " + repeat);
                     // First and every ten tries only
                     if (repeat == 1 || repeat % 10 == 0) {
                         for (id in TryAgain.downCheckServers) {

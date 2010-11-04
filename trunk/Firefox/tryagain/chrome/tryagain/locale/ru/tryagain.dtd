@@ -7,9 +7,3 @@
 <!ENTITY options.showmenu "Пункт в меню Интрументы">
 <!ENTITY options.hidetips "Скрыть сети диагностических советы">
 <!ENTITY options.useauditing "Автоматически проверять сайт статус">
-<!ENTITY text.ifatfirst "Следующая попытка произойдет через...">
-<!ENTITY text.stoptrying "Прекратить попытки">
-<!ENTITY text.trywithcache "Кроме того, попробуйте зайти кэше версии страницы:">
-<!ENTITY text.viewwith "Просмотр">
-<!ENTITY text.googlecache "в Google Кэш">
-<!ENTITY text.waybackcache "в WayBack Архив">

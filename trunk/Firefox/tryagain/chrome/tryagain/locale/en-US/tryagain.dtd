@@ -7,9 +7,3 @@
 <!ENTITY options.showmenu "Show item in Tools menu">
 <!ENTITY options.hidetips "Hide network diagnostic tips">
 <!ENTITY options.useauditing "Automatically check website status">
-<!ENTITY text.ifatfirst "If at first you don't succeed, try and...">
-<!ENTITY text.stoptrying "Stop trying">
-<!ENTITY text.trywithcache "Alternatively, try viewing a cached version of the page in:">
-<!ENTITY text.viewwith "View with">
-<!ENTITY text.googlecache "Google Cache">
-<!ENTITY text.waybackcache "WayBack Archive">
