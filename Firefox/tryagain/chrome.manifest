@@ -17,4 +17,5 @@ locale	tryagain	pt-BR jar:chrome/tryagain.jar!/locale/pt-BR/
 locale	tryagain	pt-PT jar:chrome/tryagain.jar!/locale/pt-PT/
 locale  tryagain	ru    jar:chrome/tryagain.jar!/locale/ru/
 locale  tryagain	sr    jar:chrome/tryagain.jar!/locale/sr/
+locale  tryagain	tr-TR jar:chrome/tryagain.jar!/locale/tr-TR/
 locale  tryagain	zh-CN jar:chrome/tryagain.jar!/locale/zh-CN/
