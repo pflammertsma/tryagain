@@ -15,7 +15,7 @@
     </em:targetApplication>
 
     <em:name>TryAgain</em:name>
-    <em:version>3.4.1</em:version>
+    <em:version>3.4.2</em:version>
     <em:type>2</em:type>
     <em:description>TryAgain keeps trying to load a webpage when the server cannot be reached.</em:description>
     <em:homepageURL>http://getsatisfaction.com/tryagain/products/tryagain_tryagain_for_firefox</em:homepageURL>
