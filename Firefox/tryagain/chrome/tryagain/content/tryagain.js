@@ -1,7 +1,7 @@
 window.addEventListener("load", function(e) { TryAgain.init(); }, false);
 
 var TryAgain = {
-    version: '3.4.2',
+    version: '3.5.0',
     STATUS_UNKNOWN: 0,
     STATUS_POLLING: 1,
     STATUS_LOCAL: 2,
@@ -35,7 +35,7 @@ var TryAgain = {
         }  
     },  
 
-    // Executed when Firefox loads
+    // Executed when application loads
     init: function() {
         try {
             // Load string resource:
@@ -44,13 +44,15 @@ var TryAgain = {
                 var extensionBundle = Components.classes["@mozilla.org/intl/stringbundle;1"].getService(Components.interfaces.nsIStringBundleService);
                 TryAgain.strbundle = extensionBundle.createBundle("chrome://tryagain/locale/tryagain.properties");
             }
-    
+
             // Add listener to the PageLoad event:
             var appcontent = document.getElementById("appcontent");
             if (appcontent) {
                 appcontent.addEventListener("DOMContentLoaded", TryAgain.onPageLoad, true);
+            } else {
+                TryAgain.error("browser cannot be resolved");
             }
-    
+
             // Add listener to address bar
             var urlbar = document.getElementById("urlbar");
             urlbar.addEventListener("input", TryAgain.stop, true);
@@ -69,7 +71,7 @@ var TryAgain = {
                 TryAgain.iAmActive = true;
             }
         } catch (e) {
-            alert(e);
+            TryAgain.error(e);
         }
     },
 
@@ -286,7 +288,7 @@ var TryAgain = {
     // Executed on every pageload
     onPageLoad: function(anEvent) {
         var errmessage = "";
-        
+
         // Check if pageload concerns a document
         // (and not a favicon or something similar)
         var doc = anEvent.originalTarget;
