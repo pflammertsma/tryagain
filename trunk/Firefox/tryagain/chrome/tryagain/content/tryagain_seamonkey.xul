@@ -1,16 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE window SYSTEM "chrome://tryagain/locale/tryagain.dtd">
+
 <overlay id="TryAgain-Overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
     <script type="application/x-javascript" src="chrome://tryagain/content/tryagain.js" />
     <script type="application/x-javascript" src="chrome://tryagain/content/tryagain_options.js" />
 
+    <stringbundleset id="stringbundleset">
+        <stringbundle id="tryagain_strings" src="chrome://tryagain/locale/tryagain.properties"/>
+    </stringbundleset>
+
     <!-- tools menu -->
     <menupopup id="taskPopup">
         <menuitem
             id="TryAgainMenuItem"
+            insertafter="devToolsSeparator"
             label="&menu.tryagain;"
+            type="Checkbox"
             class="menu-iconic"
+            checked="true"
+            hidden="true"
+            persist="checked,hidden"
+            accesskey="T"
             oncommand="TryAgain.toggleActive(this);"
         />
     </menupopup>
