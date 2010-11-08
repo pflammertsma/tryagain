@@ -306,6 +306,9 @@ var TryAgain = {
             if (!TryAgain.isActive()) {
                 // Hide the TryAgain part:
                 var tryagainContainer = doc.getElementById("tryagainContainer");
+                if (!tryagainContainer) {
+                    return;
+                }
                 tryagainContainer.setAttribute("style", "display: none;");
                 
                 vars.innerHTML = "var p_timeout = -1; var p_max_repeat = 0; var p_repeat = 0;\n"

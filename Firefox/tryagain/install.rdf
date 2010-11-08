@@ -5,7 +5,7 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>{992791ee-61dc-7b98-a8fd-dc49b7deeee9}</em:id>
 
-    <!-- Target Application: Firefox -->
+    <!-- Firefox -->
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
@@ -13,7 +13,8 @@
         <em:maxVersion>4.0b5pre</em:maxVersion>
       </Description>
     </em:targetApplication>
-    <!-- Target Application: SeaMonkey -->
+
+    <!-- SeaMonkey -->
     <em:targetApplication>
       <Description>
         <em:id>{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}</em:id>
@@ -21,6 +22,25 @@
         <em:maxVersion>2.0.*</em:maxVersion>
       </Description>
     </em:targetApplication>
+
+    <!-- Flock -->
+    <em:targetApplication>
+      <Description>
+        <em:id>{a463f10c-3994-11da-9945-000d60ca027b}</em:id>
+        <em:minVersion>2.0</em:minVersion>
+        <em:maxVersion>2.5.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    
+    <!-- Songbird -->
+    <em:targetApplication>
+      <Description>
+        <em:id>songbird@songbirdnest.com</em:id>
+        <em:minVersion>1.2.0</em:minVersion>
+        <em:maxVersion>1.8.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+
 
     <em:name>TryAgain</em:name>
     <em:version>3.5.0</em:version>
@@ -102,7 +122,7 @@
         <em:locale>locale/sr/</em:locale>
         <em:locale>locale/tr-TR/</em:locale>
         <em:locale>locale/zh-CN/</em:locale>
-	    <em:skin>skin/</em:skin>
+        <em:skin>skin/</em:skin>
       </Description>
     </em:file>
 

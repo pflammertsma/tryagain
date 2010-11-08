@@ -1,5 +1,7 @@
 var TryAgain_prefs = {
-   
+    debug: function(msg) { TryAgain.console.logStringMessage(msg); },
+    error: function(msg) { Components.utils.reportError(msg); },
+
     getPreference: function(s) {
         try {
             var pObj = Components.classes["@mozilla.org/preferences-service;1"]
@@ -51,35 +53,48 @@ var TryAgain_prefs = {
             TryAgain_prefs.savePreference("repeat", tb2.value);
             
             var tb3 = document.getElementById("tryagainShowMenu");
-            var win  = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator).getMostRecentWindow("navigator:browser");
-            var menu = win.document.getElementById('TryAgainMenuItem');
-
-            if(tb3.getAttribute('checked')=="true") {
-                menu.hidden = false;
-                menu.removeAttribute('style'); // In case style='display:none;' (leftover from 3.0 alpha version)
-                TryAgain_prefs.savePreference("showmenu", 1);
-            } else {
-                menu.hidden = true;
-                menu.setAttribute("checked","true");
-                win.TryAgain.iAmActive = true;
-                TryAgain_prefs.savePreference("showmenu", 0);
+            var wm  = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator)
+            var win, menu;
+            if (!wm) {
+                // Default for Mozilla browsers
+                var win = wm.getMostRecentWindow("navigator:browser");
+                if (!win) {
+                    // Try Songbird
+                    win = wMediator.getMostRecentWindow("Songbird:Main");
+                }
+                if (win) {
+                    menu = win.document.getElementById('TryAgainMenuItem');
+                }
             }
-
+            if (menu) {
+                if (tb3.getAttribute('checked')=="true") {
+                    menu.hidden = false;
+                    menu.removeAttribute('style'); // In case style='display:none;' (leftover from 3.0 alpha version)
+                    TryAgain_prefs.savePreference("showmenu", 1);
+                } else {
+                    menu.hidden = true;
+                    menu.setAttribute("checked","true");
+                    TryAgain_prefs.savePreference("showmenu", 0);
+                }
+                win.TryAgain.iAmActive = !win.TryAgain.iAmActive;
+            } else {
+                TryAgain_prefs.error("could not find menu entry");
+            }
             var tb4 = document.getElementById("tryagainHideTips");
-            if(tb4.getAttribute('checked')=="true") {
+            if (tb4.getAttribute('checked')=="true") {
                 TryAgain_prefs.savePreference("hidetips", 1);
             } else {
                 TryAgain_prefs.savePreference("hidetips", 0);
             }
 
             var tb5 = document.getElementById("tryagainUseAuditing");
-            if(tb5.getAttribute('checked')=="true") {
+            if (tb5.getAttribute('checked')=="true") {
                 TryAgain_prefs.savePreference("useauditing", 1);
             } else {
                 TryAgain_prefs.savePreference("useauditing", 0);
             }
         } catch(e) {
-            alert(e);
+            TryAgain_prefs.error(e);
         }
     }
 };
