@@ -1,7 +1,7 @@
 window.addEventListener("load", function(e) { TryAgain.init(); }, false);
 
 var TryAgain = {
-    version: '3.5.0',
+    version: '3.4.3',
     STATUS_UNKNOWN: 0,
     STATUS_POLLING: 1,
     STATUS_LOCAL: 2,
@@ -17,6 +17,45 @@ var TryAgain = {
     console: Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService),
     debug: function(msg) { TryAgain.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
+    trace: function(doc, err, msg) {
+        if (msg) {
+            Components.utils.reportError(msg);
+        }
+        if (err) {
+            TryAgain.error(err);
+        }
+        if (doc) {
+            var trc = "<ul style=\"font-size:80%\">";
+            trc += "<li>" + err.fileName + ":" + err.lineNumber + "</li>";
+            if (err.stack) {
+                var lines = err.stack.split('\n');
+                // End one early because the line ends with a linebreak
+                for (var i=0, len=lines.length - 1; i<len; i++) {
+                    trc += "<li>" + lines[i] + "</li>";
+                }
+            }
+            trc += "</ul>";
+            trc += "<div style=\"font-size:80%\">" + navigator.userAgent + "</div>";
+            var errorLongDesc = doc.getElementById("errorLongDesc");
+            if (errorLongDesc) {
+                errorLongDesc.innerHTML +=
+                      "<div style=\"-moz-border-radius-bottomleft:10px; -moz-border-radius-bottomright:10px; -moz-border-radius-topleft:10px; -moz-border-radius-topright:10px;border:#F00 2px solid; padding:0 13px; margin:10px 0;\">"
+                    + "<p><b>Unable to load TryAgain. Please report the error below <a href=\"http://getsatisfaction.com/tryagain/#problem\">on the support page</a>.</b></p>"
+                    + "<blockquote>"
+                    + (msg ? "<p>" + msg + "</p>" : "")
+                    + (err ? "<p>" + err + "</p>" : "")
+                    + (trc ? trc : "")
+                    + "</blockquote>"
+                    + "</div>";
+                errorLongDesc.setAttribute("style", "display: block;");
+            }
+            var tryagainList = doc.getElementById("tryagainList");
+            if (tryagainList) {
+                // This element is likely empty due to error; hide it
+                tryagainList.setAttribute("style", "display: none;");
+            }
+        }
+    },
 
     getString: function(str) {
         try {
@@ -32,7 +71,7 @@ var TryAgain = {
         } catch (e) {
             TryAgain.error("missing string: " + str);
             return str;
-        }  
+        }
     },  
 
     // Executed when application loads
@@ -44,7 +83,7 @@ var TryAgain = {
                 var extensionBundle = Components.classes["@mozilla.org/intl/stringbundle;1"].getService(Components.interfaces.nsIStringBundleService);
                 TryAgain.strbundle = extensionBundle.createBundle("chrome://tryagain/locale/tryagain.properties");
             }
-
+            
             // Add listener to the PageLoad event:
             var appcontent = document.getElementById("appcontent");
             if (appcontent) {
@@ -56,22 +95,24 @@ var TryAgain = {
             // Add listener to address bar
             var urlbar = document.getElementById("urlbar");
             urlbar.addEventListener("input", TryAgain.stop, true);
-    
+
             // Add listener to ESC-key:
             var stop_key = document.getElementById("key_stop");
             stop_key.addEventListener("command", TryAgain.stop, true);
-    
+
             // Show or hide the menu item:
             if (TryAgain_prefs.getPreference("showmenu")==1) {
-                TryAgain.iAmActive = document.getElementById("TryAgainMenuItem").getAttribute("checked")=='true';
-                var menu = document.getElementById('TryAgainMenuItem');
-                menu.setAttribute("style","");
-                menu.hidden = false;
+                var menu = document.getElementById("TryAgainMenuItem");
+                if (menu) {
+                    TryAgain.iAmActive = menu.getAttribute("checked")=='true';
+                    menu.setAttribute("style","");
+                    menu.hidden = false;
+                }
             } else {
                 TryAgain.iAmActive = true;
             }
         } catch (e) {
-            TryAgain.error(e);
+            TryAgain.trace(document, e);
         }
     },
 
@@ -179,7 +220,7 @@ var TryAgain = {
         } catch (e) {
             // General error
             TryAgain.downStatus[id] = TryAgain.STATUS_UNKNOWN;
-            Components.utils.reportError(e);
+            TryAgain.error(e);
         }
         return httpRequest;
     },
@@ -219,17 +260,29 @@ var TryAgain = {
                 }
                 break;
             default:
+                // TODO issue a timeout
                 // No response yet; will try again later
                 return false;
             }
         }
         try {
             var server = TryAgain.downCheckServers[id];
+            if (!server) {
+                TryAgain.error("downCheckServers not specified");
+                return true;
+            }
             var status = doc.getElementById('status_'+id);
             if (!status) {
-                Components.utils.reportError("Required page element missing: status_" + id);
-                return;
+                TryAgain.error("Required page element missing: status_" + id);
+                return true;
             }
+            while (url.substr(-1) === "&") {
+                // Drop trailing ampersands as it causes an illegal string error
+                url = url.substr(0, url.length-1);
+            }
+            TryAgain.debug(server);
+            TryAgain.debug(server[0]);
+            TryAgain.debug(url);
             var downStatus = TryAgain.downStatus[id];
             switch (downStatus) {
             case TryAgain.STATUS_POLLING:
@@ -257,8 +310,8 @@ var TryAgain = {
                 if (matches != null && matches.length == 2) {
                     url = matches[1];
                 }
-                var error_div = doc.getElementById('errorShortDescText');
-                error_div.innerHTML = TryAgain.getFormattedString("text.error_site_down", [url]);
+                var errorLongDesc = doc.getElementById('errorShortDescText');
+                errorLongDesc.innerHTML = TryAgain.getFormattedString("text.error_site_down", [url]);
                 break;
             case TryAgain.STATUS_UNKNOWN:
             default:
@@ -269,18 +322,21 @@ var TryAgain = {
                 break;
             }
         } catch (e) {
-            Components.utils.reportError(e);
+            TryAgain.trace(doc, e);
         }
         return true;
     },
 
     // Executed when the user presses ESC
     stop: function(stopType) {
+        TryAgain.debug(stopType);
         var doc = gBrowser.contentDocument;
         if (doc.documentURI.substr(0,14)=="about:neterror" || doc.title=="502 Bad Gateway") {
             if (TryAgain.isActive()) {
                 var stopRetry_btn = doc.getElementById("errorStopRetry");
-                stopRetry_btn.click();
+                if (stopRetry_btn) {
+                    stopRetry_btn.click();
+                }
             }
         }
     },
@@ -296,106 +352,113 @@ var TryAgain = {
 
         // Check if document is netError.xhtml
         if (doc.documentURI.substr(0,14)=="about:neterror") {
-            var script1 = doc.getElementsByTagName("script")[0];
-            var extraHTML = "var text_cancelled = '"+TryAgain.getString("text.cancelled")+"';\n"
-                               + "var text_tryagain = '"+TryAgain.getString("text.tryagain")+"';\n"
-                               + "var text_tried_times = '"+TryAgain.getString("text.tried_times")+"';\n";
-
-            var tryAgain_btn = doc.getElementById("errorTryAgain");
-
-            if (!TryAgain.isActive()) {
-                // Hide the TryAgain part:
-                var tryagainContainer = doc.getElementById("tryagainContainer");
-                if (!tryagainContainer) {
-                    return;
-                }
-                tryagainContainer.setAttribute("style", "display: none;");
-                
-                vars.innerHTML = "var p_timeout = -1; var p_max_repeat = 0; var p_repeat = 0;\n"
-                               + extraHTML;
-                tryAgain_btn.disabled = false;
-                return;
-            }
-
-            var script2 = doc.createElement("script");
-            script2.setAttribute("src", "chrome://tryagain/content/netError.js");
-            script1.parentNode.appendChild(script2);
-
-            var vars = doc.createElement("script");
-            script1.parentNode.appendChild(vars);
-
-            var stopRetry_btn = doc.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "xul:button");
-            stopRetry_btn.setAttribute("label", TryAgain.getFormattedString("text.stop_trying", []));
-            stopRetry_btn.setAttribute("onclick", "stopRetry();");
-            stopRetry_btn.setAttribute("id", "errorStopRetry");
-            tryAgain_btn.parentNode.appendChild(stopRetry_btn);
-
-            var increment_btn = doc.createElement("button");
-            increment_btn.setAttribute("id", "errorIncrement");
-            increment_btn.setAttribute("onclick", "autoRetryThis();");
-            increment_btn.style.display = "none";
-            tryAgain_btn.parentNode.appendChild(increment_btn);
-
-            var retry_x_of_y = doc.createElement("p");
-            retry_x_of_y.setAttribute("id", "retry_x_of_y");
-            doc.getElementById("errorTitle").appendChild(retry_x_of_y);
-
-            var page = doc.getElementById("errorPageContainer");
-            if (page) {
-                page = doc.getElementById("errorLongContent");
-            }
-            var tryagainCaches = doc.createElement("ul");
-            tryagainCaches.setAttribute("id", "tryagainCaches");
-            page.appendChild(tryagainCaches);
-
-            var li = doc.createElement("li");
-            li.setAttribute("id", "status_downforeojm");
-            tryagainCaches.appendChild(li);
-
-            li = doc.createElement("li");
-            li.setAttribute("id", "status_uptimeauditor");
-            tryagainCaches.appendChild(li);
-
-            li = doc.createElement("li");
-            li.innerHTML = TryAgain.getFormattedString("text.view_with", []) + " ";
-            var a = doc.createElement("a");
-            a.setAttribute("id", "errorGoogleCache");
-            a.innerHTML = TryAgain.getFormattedString("text.cache_google", []);
-            li.appendChild(a);
-            tryagainCaches.appendChild(li);
-
-            li = doc.createElement("li");
-            li.innerHTML = TryAgain.getFormattedString("text.view_with", []) + " ";
-            a = doc.createElement("a");
-            a.setAttribute("id", "errorWebArchive");
-            a.innerHTML = TryAgain.getFormattedString("text.cache_wayback", []);
-            li.appendChild(a);
-            tryagainCaches.appendChild(li);
-
-            var tryagainContainer = doc.createElement("div");
-            tryagainContainer.setAttribute("id", "tryagainContainer");
-            page.appendChild(tryagainContainer);
-
-            var errorAutoRetry1 = doc.createElement("div");
-            errorAutoRetry1.setAttribute("id", "errorAutoRetry1");
-            tryagainContainer.appendChild(errorAutoRetry1);
-            errorAutoRetry1.innerHTML = TryAgain.getFormattedString("text.if_at_first", []);
-
-            var errorAutoRetry2 = doc.createElement("span");
-            errorAutoRetry2.setAttribute("id", "errorAutoRetry2");
-            errorAutoRetry2.style.marginLeft = "1em";
-            errorAutoRetry2.style.height = "12px";
-            errorAutoRetry2.style.fontSize = "80%";
-            errorAutoRetry2.style.color = "threedshadow";
-            errorAutoRetry1.appendChild(errorAutoRetry2);
-
-            var errorAutoRetry3 = doc.createElement("div");
-            errorAutoRetry3.setAttribute("id", "errorAutoRetry3");
-            errorAutoRetry3.style.height = "13px";
-            tryagainContainer.appendChild(errorAutoRetry3);
-
             var tab;
             try {
+                var script1 = doc.getElementsByTagName("script")[0];
+                var extraHTML = "var text_cancelled = '"+TryAgain.getString("text.cancelled")+"';\n"
+                                   + "var text_tryagain = '"+TryAgain.getString("text.tryagain")+"';\n"
+                                   + "var text_tried_times = '"+TryAgain.getString("text.tried_times")+"';\n";
+    
+                var tryAgain_btn = doc.getElementById("errorTryAgain");
+                
+                if (!TryAgain.isActive()) {
+                    // Hide the TryAgain part:
+                    var tryagainContainer = doc.getElementById("tryagainContainer");
+                    if (!tryagainContainer) {
+                        return;
+                    }
+                    tryagainContainer.setAttribute("style", "display: none;");
+                    
+                    vars.innerHTML = "var p_timeout = -1; var p_max_repeat = 0; var p_repeat = 0;\n"
+                                   + extraHTML;
+                    tryAgain_btn.disabled = false;
+                    return;
+                }
+    
+                var script2 = doc.createElement("script");
+                script2.setAttribute("src", "chrome://tryagain/content/netError.js");
+                script1.parentNode.appendChild(script2);
+    
+                var vars = doc.createElement("script");
+                script1.parentNode.appendChild(vars);
+
+                var stopRetry_btn = doc.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "xul:button");
+                stopRetry_btn.setAttribute("label", TryAgain.getFormattedString("text.stop_trying", []));
+                stopRetry_btn.setAttribute("onclick", "stopRetry();");
+                stopRetry_btn.setAttribute("id", "errorStopRetry");
+                tryAgain_btn.parentNode.appendChild(stopRetry_btn);
+    
+                var increment_btn = doc.createElement("button");
+                increment_btn.setAttribute("id", "errorIncrement");
+                increment_btn.setAttribute("onclick", "autoRetryThis();");
+                increment_btn.style.display = "none";
+                tryAgain_btn.parentNode.appendChild(increment_btn);
+
+                var retry_x_of_y = doc.createElement("p");
+                retry_x_of_y.setAttribute("id", "retry_x_of_y");
+                doc.getElementById("errorTitle").appendChild(retry_x_of_y);
+    
+                var page = doc.getElementById("errorPageContainer");
+                if (page) {
+                    page = doc.getElementById("errorLongContent");
+                }
+                var tryagainList = doc.createElement("ul");
+                tryagainList.setAttribute("id", "tryagainList");
+                page.appendChild(tryagainList);
+
+                var li = doc.createElement("li");
+                li.setAttribute("id", "status_downforeojm");
+                tryagainList.appendChild(li);
+
+                li = doc.createElement("li");
+                li.setAttribute("id", "status_uptimeauditor");
+                tryagainList.appendChild(li);
+
+                li = doc.createElement("li");
+                li.innerHTML = TryAgain.getFormattedString("text.view_with", []) + " ";
+                var a = doc.createElement("a");
+                a.setAttribute("id", "errorGoogleCache");
+                a.innerHTML = TryAgain.getFormattedString("text.cache_google", []);
+                li.appendChild(a);
+                tryagainList.appendChild(li);
+
+                li = doc.createElement("li");
+                li.innerHTML = TryAgain.getFormattedString("text.view_with", []) + " ";
+                a = doc.createElement("a");
+                a.setAttribute("id", "errorWebArchive");
+                a.innerHTML = TryAgain.getFormattedString("text.cache_wayback", []);
+                li.appendChild(a);
+                tryagainList.appendChild(li);
+
+                li = doc.createElement("li");
+                li.innerHTML = TryAgain.getFormattedString("text.notify_me", []) + " ";
+                a = doc.createElement("a");
+                a.innerHTML = TryAgain.getFormattedString("text.when_site_comes_online", []);
+                li.appendChild(a);
+                tryagainList.appendChild(li);
+
+                var tryagainContainer = doc.createElement("div");
+                tryagainContainer.setAttribute("id", "tryagainContainer");
+                page.appendChild(tryagainContainer);
+    
+                var errorAutoRetry1 = doc.createElement("div");
+                errorAutoRetry1.setAttribute("id", "errorAutoRetry1");
+                tryagainContainer.appendChild(errorAutoRetry1);
+                errorAutoRetry1.innerHTML = TryAgain.getFormattedString("text.if_at_first", []);
+    
+                var errorAutoRetry2 = doc.createElement("span");
+                errorAutoRetry2.setAttribute("id", "errorAutoRetry2");
+                errorAutoRetry2.style.marginLeft = "1em";
+                errorAutoRetry2.style.height = "12px";
+                errorAutoRetry2.style.fontSize = "80%";
+                errorAutoRetry2.style.color = "threedshadow";
+                errorAutoRetry1.appendChild(errorAutoRetry2);
+    
+                var errorAutoRetry3 = doc.createElement("div");
+                errorAutoRetry3.setAttribute("id", "errorAutoRetry3");
+                errorAutoRetry3.style.height = "13px";
+                tryagainContainer.appendChild(errorAutoRetry3);
+
                 tab = TryAgain.getTabFromPageloadEvent(doc);
                 var tab_uri = false;
                 if (tab===false) {
@@ -470,65 +533,63 @@ var TryAgain = {
                 try {
                     timer1 = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
                 } catch (e) {
-                    Components.utils.reportError(e);
+                    TryAgain.error(e);
                     return;
                 }
                 var event1 = {
-                  notify: function(timer) {
-                    try {
-                      var errorIncrement = doc.getElementById("errorIncrement")
-                      if (errorIncrement) errorIncrement.click();
-                    } catch (e) {
-                      Components.utils.reportError(e);
-                      timer.cancel();
+                    notify: function(timer) {
+                        try {
+                            var errorIncrement = doc.getElementById("errorIncrement")
+                            if (errorIncrement) errorIncrement.click();
+                        } catch (e) {
+                            TryAgain.error(e);
+                            timer.cancel();
+                        }
                     }
-                  }
                 }
                 timer1.initWithCallback(event1, 1000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
 
                 if (TryAgain_prefs.getPreference("useauditing")==1) {
                     var timers = [];
-                    try {
-                        for (id in TryAgain.downCheckServers) {
-                            timers[id] = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-                        }
-                    } catch (e) {
-                        Components.utils.reportError(e);
-                        return;
+                    for (id in TryAgain.downCheckServers) {
+                        timers[id] = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
                     }
                     var events = [];
                     // First and every ten tries only
                     if (repeat == 1 || repeat % 10 == 0) {
                         for (id in TryAgain.downCheckServers) {
                             var server = TryAgain.downCheckServers[id];
+                            if (!server) {
+                                throw new Error("could not resolve downCheckServers["+id+"]");
+                            }
                             var httpRequest = TryAgain.checkDownStatus(doc, tab_uri, id, server[0]);
                             TryAgain.downStatus[id] = TryAgain.STATUS_POLLING;
                             events[id] = {
-                              serverId: '',
-                              httpRequest: false,
-                              regex: '',
-                              matchDown: '',
-                              matchUp: '',
-                              register: function(id, httpRequest, regex, matchDown, matchUp) {
-                                  this.id = id;
-                                  this.regex = regex;
-                                  this.httpRequest = httpRequest;
-                                  this.matchDown = matchDown;
-                                  this.matchUp = matchUp;
-                              },
-                              notify: function(timer) {
-                                try {
-                                  if (TryAgain.updateDownStatus(doc, tab_uri, this.id, this.httpRequest, this.regex, this.matchDown, this.matchUp)) {
-                                    timer.cancel();
-                                  }
-                                } catch (e) {
-                                  Components.utils.reportError(e);
-                                  timer.cancel();
+                                serverId: '',
+                                httpRequest: false,
+                                regex: '',
+                                matchDown: '',
+                                matchUp: '',
+                                register: function(id, httpRequest, regex, matchDown, matchUp) {
+                                    this.id = id;
+                                    this.regex = regex;
+                                    this.httpRequest = httpRequest;
+                                    this.matchDown = matchDown;
+                                    this.matchUp = matchUp;
+                                },
+                                notify: function(timer) {
+                                    try {
+                                        if (TryAgain.updateDownStatus(doc, tab_uri, this.id, this.httpRequest, this.regex, this.matchDown, this.matchUp)) {
+                                            timer.cancel();
+                                        }
+                                    } catch (e) {
+                                        TryAgain.trace(doc, e);
+                                        timer.cancel();
+                                    }
                                 }
-                              }
                             }
                             events[id].register(id, httpRequest, server[1], server[2], server[3]);
-                            timers[id].initWithCallback(events[id], 100, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                            timers[id].initWithCallback(events[id], 500, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
                         }
                     }
                 }
@@ -539,18 +600,15 @@ var TryAgain = {
                     TryAgain.updateDownStatus(doc, tab_uri, id, false);
                 }
             } catch (exception) {
-                var error_div = doc.getElementById("errorLongDesc");
-                error_div.innerHTML += "<div style=\"border: #F00 2px solid\">"
-                                     + "<b>Unable to load TryAgain. Error message:</b>"
-                                     + "<br />"+exception+"; "+errmessage+"</div>";
-                Components.utils.reportError(exception);
+                TryAgain.trace(doc, exception, errmessage);
             }
         } else {
             try {
                 // A new webpage is loaded after the netError.xhtml page, so reset the counter to zero:
                 tab = TryAgain.getTabFromPageloadEvent(doc);
-                if (tab!==false)
+                if (tab!==false) {
                     tab.setAttribute("tryagain_rep", "0");
+                }
             } catch (exception) {
                 // Just to make sure no errors occur on blank tabs.
             }

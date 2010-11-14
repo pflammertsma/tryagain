@@ -11,18 +11,50 @@
         onload="TryAgain_prefs.load();"
 	>
 	<script type="application/x-javascript" src="chrome://tryagain/content/tryagain_options.js"/>
-    
+	
+	<image src="chrome://tryagain/skin/biglogo.png"/>
+
 	<groupbox>
+	    <caption label="&options.general;"/>
         <vbox>
-            <label value="&options.timeout;"/>
-            <hbox>
-                <textbox id="tryagainTimeout" rows="10" maxlength="5"/><label value="&options.seconds;"/>
-            </hbox>
-            <label value="&options.repeat;"/>
-            <textbox id="tryagainRepeat" rows="10" maxlength="5"/>
-            <checkbox id="tryagainShowMenu" label="&options.showmenu;"/>
-            <checkbox id="tryagainHideTips" label="&options.hidetips;"/>
+            <checkbox id="tryagainShowMenu" label="&options.enable;"/>
+        </vbox>
+	</groupbox>
+
+	<groupbox>
+	    <caption label="&options.trying_again;"/>
+	    <vbox>
+            <grid>
+                <columns>
+                    <column/>
+                    <column/>
+                    <column/>
+                    <column flex="1"/>
+                </columns>
+                <rows>
+                    <row align="center">
+                        <label value="&options.timeout;" style="padding-left:20px;"/>
+                        <textbox id="tryagainTimeout" type="number" min="1" style="width:5em;"/>
+                        <label value="&options.seconds;"/>
+                        <spacer flex="1"/>
+                    </row>
+                    <row>
+                        <checkbox id="tryagainShowMenu" label="&options.repeat;"/>
+                        <textbox id="tryagainRepeat" type="number" min="0" style="width:5em;"/>
+                        <spacer flex="1"/>
+                    </row>
+                </rows>
+            </grid>
             <checkbox id="tryagainUseAuditing" label="&options.useauditing;"/>
         </vbox>
 	</groupbox>
+
+	<groupbox>
+	    <caption label="&options.other;"/>
+        <vbox>
+            <checkbox id="tryagainShowMenu" label="&options.showmenu;"/>
+            <checkbox id="tryagainHideTips" label="&options.hidetips;"/>
+        </vbox>
+	</groupbox>
+
 </dialog>
