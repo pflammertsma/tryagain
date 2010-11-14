@@ -27,16 +27,18 @@ var TryAgain_prefs = {
     // Loads preferences into the options.xul window
     load: function() {
         try {
-            var tb1 = document.getElementById("tryagainTimeout");
-            tb1.value = TryAgain_prefs.getPreference("timeout");
-            var tb2 = document.getElementById("tryagainRepeat");
-            tb2.value = TryAgain_prefs.getPreference("repeat");
-            var tb3 = document.getElementById("tryagainShowMenu");
-            tb3.setAttribute('checked', (TryAgain_prefs.getPreference("showmenu")==1 ? 'true' : 'false'));
-            var tb4 = document.getElementById("tryagainHideTips");
-            tb4.setAttribute('checked', (TryAgain_prefs.getPreference("hidetips")==1 ? 'true' : 'false'));
-            var tb5 = document.getElementById("tryagainUseAuditing");
-            tb5.setAttribute('checked', (TryAgain_prefs.getPreference("useauditing")==1 ? 'true' : 'false'));
+            var op_enabled = document.getElementById("tryagainEnabled");
+            op_enabled.value = TryAgain_prefs.getPreference("enabled");
+            var op_timeout = document.getElementById("tryagainTimeout");
+            op_timeout.value = TryAgain_prefs.getPreference("timeout");
+            var op_repeat = document.getElementById("tryagainRepeat");
+            op_repeat.value = TryAgain_prefs.getPreference("repeat");
+            var op_showmenu = document.getElementById("tryagainShowMenu");
+            op_showmenu.setAttribute('checked', (TryAgain_prefs.getPreference("showmenu")==1 ? 'true' : 'false'));
+            var op_hidetips = document.getElementById("tryagainHideTips");
+            op_hidetips.setAttribute('checked', (TryAgain_prefs.getPreference("hidetips")==1 ? 'true' : 'false'));
+            var op_useauditing = document.getElementById("tryagainUseAuditing");
+            op_useauditing.setAttribute('checked', (TryAgain_prefs.getPreference("useauditing")==1 ? 'true' : 'false'));
         } catch(e) {
             alert(e);
         }
@@ -45,14 +47,24 @@ var TryAgain_prefs = {
     // Save preferences from the options.xul window
     save: function() {
         try {
-            var tb1 = document.getElementById("tryagainTimeout");
-            if(parseInt(tb1.value) < 1) tb1.value = "1";
-            TryAgain_prefs.savePreference("timeout", tb1.value);
-            var tb2 = document.getElementById("tryagainRepeat");
-            if(parseInt(tb2.value) < 0) tb2.value = "0";
-            TryAgain_prefs.savePreference("repeat", tb2.value);
+            var op_enabled = document.getElementById("tryagainEnabled");
+            if (op_enabled.getAttribute('checked')=="true") {
+                TryAgain_prefs.savePreference("enabled", 1);
+                TryAgain.iAmActive = true;
+            } else {
+                TryAgain_prefs.savePreference("enabled", 0);
+                TryAgain.iAmActive = false;
+            }
+
+            var op_timeout = document.getElementById("tryagainTimeout");
+            if(parseInt(op_timeout.value) < 1) op_timeout.value = "1";
+            TryAgain_prefs.savePreference("timeout", op_timeout.value);
+
+            var op_repeat = document.getElementById("tryagainRepeat");
+            if(parseInt(op_repeat.value) < 0) op_repeat.value = "0";
+            TryAgain_prefs.savePreference("repeat", op_repeat.value);
             
-            var tb3 = document.getElementById("tryagainShowMenu");
+            var op_showmenu = document.getElementById("tryagainShowMenu");
             var wm  = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator)
             var win, menu;
             if (!wm) {
@@ -65,9 +77,12 @@ var TryAgain_prefs = {
                 if (win) {
                     menu = win.document.getElementById('TryAgainMenuItem');
                 }
+            } else {
+                menu = document.getElementById("TryAgainMenuItem");
             }
             if (menu) {
-                if (tb3.getAttribute('checked')=="true") {
+                // Show or hide the menu item
+                if (op_showmenu.getAttribute('checked')=="true") {
                     menu.hidden = false;
                     menu.removeAttribute('style'); // In case style='display:none;' (leftover from 3.0 alpha version)
                     TryAgain_prefs.savePreference("showmenu", 1);
@@ -80,15 +95,16 @@ var TryAgain_prefs = {
             } else {
                 TryAgain_prefs.error("could not find menu entry");
             }
-            var tb4 = document.getElementById("tryagainHideTips");
-            if (tb4.getAttribute('checked')=="true") {
+
+            var op_hidetips = document.getElementById("tryagainHideTips");
+            if (op_hidetips.getAttribute('checked')=="true") {
                 TryAgain_prefs.savePreference("hidetips", 1);
             } else {
                 TryAgain_prefs.savePreference("hidetips", 0);
             }
 
-            var tb5 = document.getElementById("tryagainUseAuditing");
-            if (tb5.getAttribute('checked')=="true") {
+            var op_useauditing = document.getElementById("tryagainUseAuditing");
+            if (op_useauditing.getAttribute('checked')=="true") {
                 TryAgain_prefs.savePreference("useauditing", 1);
             } else {
                 TryAgain_prefs.savePreference("useauditing", 0);

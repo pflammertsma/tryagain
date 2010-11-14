@@ -4,6 +4,9 @@ overlay     chrome://browser/content/browser.xul chrome://tryagain/content/tryag
 ## Seamonkey ##
 overlay chrome://navigator/content/navigator.xul chrome://tryagain/content/tryagain_seamonkey.xul application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 
+## Firefox 2 and older ##
+content	tryagain	jar:chrome/tryagain.jar!/content/
+## Firefox 3 and newer ##
 content	tryagain	jar:chrome/tryagain.jar!/content/ contentaccessible=yes
 
 skin	tryagain	classic/1.0	jar:chrome/tryagain.jar!/skin/

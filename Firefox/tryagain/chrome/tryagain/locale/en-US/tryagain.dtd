@@ -1,6 +1,12 @@
 <!ENTITY name.tryagain "TryAgain">
 <!ENTITY menu.tryagain "Enable TryAgain">
+
 <!ENTITY options.title "TryAgain options">
+<!ENTITY options.general "General">
+<!ENTITY options.trying_again "Trying again">
+<!ENTITY options.other "Other">
+
+<!ENTITY options.enable "Enable TryAgain">
 <!ENTITY options.timeout "Timeout:">
 <!ENTITY options.seconds "seconds">
 <!ENTITY options.repeat "Maximum tries:">

@@ -83,7 +83,8 @@ function autoRetryThis() {
 function stopRetry() {
     window.stop();
     auto_retry = RETRY_CANCEL;
-    document.getElementById("errorStopRetry").disabled=true;
+    document.getElementById("errorStopRetry").disabled = true;
+    document.getElementById("errorTryAgain").disabled  = false;
     autoRetryThis();
 }
 
@@ -151,6 +152,7 @@ function retryThis() {
         // occur;    e.g. a non-existent file.
     }
     document.getElementById("errorTryAgain").disabled = true;
+    document.getElementById("errorStopRetry").disabled = false;
 }
 
 function initPage() {
