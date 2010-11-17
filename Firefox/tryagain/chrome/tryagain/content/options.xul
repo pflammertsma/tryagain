@@ -12,12 +12,29 @@
 	>
 	<script type="application/x-javascript" src="chrome://tryagain/content/tryagain_options.js"/>
 	
-	<image src="chrome://tryagain/skin/biglogo.png"/>
+	<grid>
+        <columns>
+            <column align="center" flex="1">
+                <image src="chrome://tryagain/skin/biglogo.png"/>
+            </column>
+            <column align="stretch" flex="1">
+                <vbox>
+                    <spacer flex="1"/>
+                    <label class="header" value="TryAgain" id="tryAgainTitle"/>
+                    <spacer flex="1"/>
+                    <label class="text-link" href="http://getsatisfaction.com/tryagain" value="Support site"/>
+                    <spacer flex="1"/>
+                    <label class="text-link" href="http://www.facebook.com/pages/TryAgain/104402566286149" value="Facebook page"/>
+                    <spacer flex="1"/>
+                </vbox>
+            </column>
+        </columns>
+	</grid>
 
 	<groupbox>
 	    <caption label="&options.general;"/>
         <vbox>
-            <checkbox id="tryagainShowMenu" label="&options.enable;"/>
+            <checkbox id="tryagainEnabled" label="&options.enable;"/>
         </vbox>
 	</groupbox>
 
@@ -39,7 +56,7 @@
                         <spacer flex="1"/>
                     </row>
                     <row>
-                        <checkbox id="tryagainShowMenu" label="&options.repeat;"/>
+                        <checkbox id="tryagainRepeating" label="&options.repeat;"/>
                         <textbox id="tryagainRepeat" type="number" min="0" style="width:5em;"/>
                         <spacer flex="1"/>
                     </row>
