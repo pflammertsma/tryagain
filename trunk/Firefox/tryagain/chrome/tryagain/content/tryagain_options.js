@@ -1,7 +1,7 @@
 var TryAgain_prefs = {
-    debug: function(msg) { TryAgain.console.logStringMessage(msg); },
+    console: Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService),
+    debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
-
     getPreference: function(s) {
         try {
             var pObj = Components.classes["@mozilla.org/preferences-service;1"]
@@ -9,10 +9,9 @@ var TryAgain_prefs = {
                             .getBranch("extensions.tryagain.");
             return pObj.getIntPref(s);
         } catch(e) {
-            alert(e);
+            TryAgain_prefs.error(e);
         }
     },
-
     savePreference: function(s, v) {
         try {
             var pObj = Components.classes["@mozilla.org/preferences-service;1"]
@@ -20,7 +19,7 @@ var TryAgain_prefs = {
                             .getBranch("extensions.tryagain.");
             pObj.setIntPref(s, parseInt(v));
         } catch(e) {
-            alert(e);
+            TryAgain_prefs.error(e);
         }
     },
     
@@ -40,7 +39,7 @@ var TryAgain_prefs = {
             var op_useauditing = document.getElementById("tryagainUseAuditing");
             op_useauditing.setAttribute('checked', (TryAgain_prefs.getPreference("useauditing")==1 ? 'true' : 'false'));
         } catch(e) {
-            alert(e);
+            TryAgain_prefs.error(e);
         }
     },
 
@@ -50,15 +49,20 @@ var TryAgain_prefs = {
             var op_enabled = document.getElementById("tryagainEnabled");
             if (op_enabled.getAttribute('checked')=="true") {
                 TryAgain_prefs.savePreference("enabled", 1);
-                TryAgain.iAmActive = true;
             } else {
                 TryAgain_prefs.savePreference("enabled", 0);
-                TryAgain.iAmActive = false;
             }
 
             var op_timeout = document.getElementById("tryagainTimeout");
             if(parseInt(op_timeout.value) < 1) op_timeout.value = "1";
             TryAgain_prefs.savePreference("timeout", op_timeout.value);
+
+            var op_repeating = document.getElementById("tryagainRepeating");
+            if (op_repeating.getAttribute('checked')=="true") {
+                TryAgain_prefs.savePreference("repeating", 1);
+            } else {
+                TryAgain_prefs.savePreference("repeating", 0);
+            }
 
             var op_repeat = document.getElementById("tryagainRepeat");
             if(parseInt(op_repeat.value) < 0) op_repeat.value = "0";
@@ -77,7 +81,8 @@ var TryAgain_prefs = {
                 if (win) {
                     menu = win.document.getElementById('TryAgainMenuItem');
                 }
-            } else {
+            }
+            if (!menu) {
                 menu = document.getElementById("TryAgainMenuItem");
             }
             if (menu) {

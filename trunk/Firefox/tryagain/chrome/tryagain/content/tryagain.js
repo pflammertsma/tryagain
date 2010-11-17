@@ -6,16 +6,15 @@ var TryAgain = {
     STATUS_POLLING: 1,
     STATUS_LOCAL: 2,
     STATUS_GLOBAL: 3,
-    iAmActive: true,
     strbundle: 0,
     downStatus: [],
     httpRequest: false,
+    xulButtons: 0,
     downCheckServers: {
             downforeojm: [ "http://downforeveryoneorjustme.com/%url%?src=%source%", "<title>([^<]*)</title>", "It's not just you!", "It's just you." ],
             uptimeauditor: [ "http://uptimeauditor.com/quicksitecheck.php?x=%url%&src=%source%", "/(fail|ok).gif", "fail", "ok" ],
         },
-    console: Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService),
-    debug: function(msg) { TryAgain.console.logStringMessage(msg); },
+    debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
     trace: function(doc, err, msg) {
         if (msg) {
@@ -57,6 +56,29 @@ var TryAgain = {
         }
     },
 
+    createButton: function(doc, text) {
+        var btn;
+        if (TryAgain.xulButtons == 0) {
+            TryAgain.xulButtons = 1;
+            var btn = doc.getElementById('errorTryAgain');
+            if (btn) {
+                if (btn.nodeName=='button') {
+                    TryAgain.xulButtons = 2;
+                }
+            } else {
+                TryAgain.debug("not set: " + btn);
+            }
+        }
+        if (TryAgain.xulButtons == 1) {
+            btn = doc.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "xul:button");
+            btn.setAttribute("label", TryAgain.getString("text.stop_trying"));
+        } else {
+            btn = doc.createElement("button");
+            btn.innerHTML = TryAgain.getString("text.stop_trying");
+        }
+        return btn;
+    },
+
     getString: function(str) {
         try {
             return TryAgain.strbundle.getString(str);
@@ -69,7 +91,7 @@ var TryAgain = {
         try {
             return TryAgain.strbundle.getFormattedString(str, replacements);
         } catch (e) {
-            TryAgain.error("missing string: " + str);
+            TryAgain.error("missing string: " + str + "; " + e);
             return str;
         }
     },  
@@ -89,7 +111,7 @@ var TryAgain = {
             if (appcontent) {
                 appcontent.addEventListener("DOMContentLoaded", TryAgain.onPageLoad, true);
             } else {
-                TryAgain.error("browser cannot be resolved");
+                TryAgain.error(new Error("browser cannot be resolved"));
             }
 
             // Add listener to address bar
@@ -104,12 +126,9 @@ var TryAgain = {
             if (TryAgain_prefs.getPreference("showmenu")==1) {
                 var menu = document.getElementById("TryAgainMenuItem");
                 if (menu) {
-                    TryAgain.iAmActive = menu.getAttribute("checked")=='true';
                     menu.setAttribute("style","");
                     menu.hidden = false;
                 }
-            } else {
-                TryAgain.iAmActive = true;
             }
         } catch (e) {
             TryAgain.trace(document, e);
@@ -118,17 +137,17 @@ var TryAgain = {
 
     // Returns true if the 'Enable TryAgain' menu option is checked.
     isActive: function() {
-        return TryAgain.iAmActive;
+        return TryAgain_prefs.getPreference("enabled") == 1;
     },
-    
+
     // Is called when user toggles the 'Enable TryAgain' menu option.
     toggleActive: function(menu) {
         if (menu.getAttribute('checked')=='true') {
             menu.setAttribute('checked',false);
-            TryAgain.iAmActive = false;
+            TryAgain_prefs.savePreference("enabled", 0);
         } else {
             menu.setAttribute('checked',true);
-            TryAgain.iAmActive = true;
+            TryAgain_prefs.savePreference("enabled", 1);
         }
     },
 
@@ -244,18 +263,15 @@ var TryAgain = {
                             break;
                         default:
                             // The website returned an unknown title
-                            TryAgain.debug(id + ' returned unknown match "' + title[1] + '"');
                             TryAgain.downStatus[id] = TryAgain.STATUS_UNKNOWN;
                             break;
                         }
                     } else {
                         // Regular expression didn't match
-                        TryAgain.debug(id + ' didn\'t match regular expression');
                         TryAgain.downStatus[id] = TryAgain.STATUS_UNKNOWN;
                     }
                 } else {
                     // Bad status code
-                    TryAgain.debug(id + ' returned HTTP ' + status);
                     TryAgain.downStatus[id] = TryAgain.STATUS_UNKNOWN;
                 }
                 break;
@@ -268,21 +284,18 @@ var TryAgain = {
         try {
             var server = TryAgain.downCheckServers[id];
             if (!server) {
-                TryAgain.error("downCheckServers not specified");
+                TryAgain.debug("downCheckServers not specified");
                 return true;
             }
             var status = doc.getElementById('status_'+id);
             if (!status) {
-                TryAgain.error("Required page element missing: status_" + id);
+                TryAgain.debug("Required page element missing: status_" + id);
                 return true;
             }
             while (url.substr(-1) === "&") {
                 // Drop trailing ampersands as it causes an illegal string error
                 url = url.substr(0, url.length-1);
             }
-            TryAgain.debug(server);
-            TryAgain.debug(server[0]);
-            TryAgain.debug(url);
             var downStatus = TryAgain.downStatus[id];
             switch (downStatus) {
             case TryAgain.STATUS_POLLING:
@@ -328,8 +341,7 @@ var TryAgain = {
     },
 
     // Executed when the user presses ESC
-    stop: function(stopType) {
-        TryAgain.debug(stopType);
+    stop: function(event) {
         var doc = gBrowser.contentDocument;
         if (doc.documentURI.substr(0,14)=="about:neterror" || doc.title=="502 Bad Gateway") {
             if (TryAgain.isActive()) {
@@ -369,7 +381,7 @@ var TryAgain = {
                     }
                     tryagainContainer.setAttribute("style", "display: none;");
                     
-                    vars.innerHTML = "var p_timeout = -1; var p_max_repeat = 0; var p_repeat = 0;\n"
+                    vars.innerHTML = "var p_timeout = -1; var p_repeating = true; var p_max_repeat = 0; var p_repeat = 0;\n"
                                    + extraHTML;
                     tryAgain_btn.disabled = false;
                     return;
@@ -382,8 +394,7 @@ var TryAgain = {
                 var vars = doc.createElement("script");
                 script1.parentNode.appendChild(vars);
 
-                var stopRetry_btn = doc.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "xul:button");
-                stopRetry_btn.setAttribute("label", TryAgain.getFormattedString("text.stop_trying", []));
+                var stopRetry_btn = TryAgain.createButton(doc, TryAgain.getString("text.stop_trying"));
                 stopRetry_btn.setAttribute("onclick", "stopRetry();");
                 stopRetry_btn.setAttribute("id", "errorStopRetry");
                 tryAgain_btn.parentNode.appendChild(stopRetry_btn);
@@ -475,6 +486,7 @@ var TryAgain = {
 
                 // Determine the desired timeout and max. repeats:
                 var timeout = TryAgain_prefs.getPreference("timeout");
+                var repeating = TryAgain_prefs.getPreference("repeating")==1;
                 var max_repeat = TryAgain_prefs.getPreference("repeat");
                 var repeat  = 1;
 
@@ -503,12 +515,9 @@ var TryAgain = {
                     if (errorLongDesc) errorLongDesc.setAttribute("style", "display: none;");
                 }
 
-                if (repeat<max_repeat || max_repeat<=0) {
-                    vars.innerHTML = "var p_timeout = "+timeout+"; var p_max_repeat = "+max_repeat+"; var p_repeat = "+repeat+";\n"
-                                   + extraHTML;
+                if (repeat<max_repeat || max_repeat<=0 || !repeating) {
                     tab.setAttribute("tryagain_rep", repeat);
-
-                    if (max_repeat==0) {
+                    if (max_repeat==0 || !repeating) {
                         retry_x_of_y.innerHTML = TryAgain.getFormattedString("text.try_of_infinite", [repeat]);
                     } else {
                         retry_x_of_y.innerHTML = TryAgain.getFormattedString("text.try_of", [repeat, max_repeat]);
@@ -518,10 +527,10 @@ var TryAgain = {
                     retry_x_of_y.setAttribute("style", "color: red; font-weight: bold;");
                     var tryagainContainer = doc.getElementById("tryagainContainer");
                     tryagainContainer.setAttribute("style", "display: none;");
-
-                    vars.innerHTML = "var p_timeout = -1; var p_max_repeat = "+max_repeat+"; var p_repeat = "+repeat+";\n"
-                                   + extraHTML;
+                    timeout = -1;
                 }
+                vars.innerHTML = "var p_timeout = "+timeout+"; var p_repeating = "+repeating+"; var p_max_repeat = "+max_repeat+"; var p_repeat = "+repeat+";\n"
+                               + extraHTML;
                 
                 var errorGoogleCache = doc.getElementById("errorGoogleCache");
                 if (errorGoogleCache) errorGoogleCache.setAttribute('href', TryAgain.urlify('http://72.14.209.104/search?q=cache:%url_escaped%', tab_uri));
