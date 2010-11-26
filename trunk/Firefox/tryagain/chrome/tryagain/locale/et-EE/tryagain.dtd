@@ -1,0 +1,19 @@
+<!ENTITY name.tryagain "TryAgain">
+<!ENTITY menu.tryagain "Luba TryAgain">
+
+<!ENTITY options.title "TryAgain valikud">
+<!ENTITY options.general "General">
+<!ENTITY options.trying_again "Trying again">
+<!ENTITY options.other "Other">
+
+<!ENTITY options.support_site "Give feedback / report a bug">
+<!ENTITY options.translation_site "Contribute by translating">
+<!ENTITY options.facebook_page "Facebook fan page">
+
+<!ENTITY options.enable "Luba TryAgain">
+<!ENTITY options.timeout "Prooviaeg:">
+<!ENTITY options.seconds "sekundit">
+<!ENTITY options.repeat "Proovikordi:">
+<!ENTITY options.showmenu "Näita elementi tööristamenüüs">
+<!ENTITY options.hidetips "Peida võrgu diagnostika vihjeid">
+<!ENTITY options.useauditing "Automaatselt kontrolli veebilehe olekut">

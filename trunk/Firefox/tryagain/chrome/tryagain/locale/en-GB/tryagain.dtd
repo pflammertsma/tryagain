@@ -1,0 +1,19 @@
+<!ENTITY name.tryagain "TryAgain">
+<!ENTITY menu.tryagain "Enable TryAgain">
+
+<!ENTITY options.title "TryAgain options">
+<!ENTITY options.general "General">
+<!ENTITY options.trying_again "Trying again">
+<!ENTITY options.other "Other">
+
+<!ENTITY options.support_site "Give feedback / report a bug">
+<!ENTITY options.translation_site "Contribute by translating">
+<!ENTITY options.facebook_page "Facebook fan page">
+
+<!ENTITY options.enable "Enable TryAgain">
+<!ENTITY options.timeout "Timeout:">
+<!ENTITY options.seconds "seconds">
+<!ENTITY options.repeat "Maximum tries:">
+<!ENTITY options.showmenu "Show item in Tools menu">
+<!ENTITY options.hidetips "Hide network diagnostic tips">
+<!ENTITY options.useauditing "Automatically check website status">
