@@ -19,13 +19,16 @@
             </column>
             <column align="stretch" flex="1">
                 <vbox>
+                    <spacer flex="2"/>
+                    <label class="header" value="&name.tryagain;" id="tryAgainTitle"/>
+                    <label value="" id="tryAgainVersion"/>
                     <spacer flex="1"/>
-                    <label class="header" value="TryAgain" id="tryAgainTitle"/>
+                    <label class="text-link" href="http://getsatisfaction.com/tryagain" value="&options.support_site;"/>
                     <spacer flex="1"/>
-                    <label class="text-link" href="http://getsatisfaction.com/tryagain" value="Support site"/>
+                    <label class="text-link" href="http://www.babelzilla.org/index.php?option=com_wts&amp;Itemid=203&amp;extension=5426&amp;type=show" value="&options.translation_site;"/>
                     <spacer flex="1"/>
-                    <label class="text-link" href="http://www.facebook.com/pages/TryAgain/104402566286149" value="Facebook page"/>
-                    <spacer flex="1"/>
+                    <label class="text-link" href="http://www.facebook.com/pages/TryAgain/104402566286149" value="&options.facebook_page;"/>
+                    <spacer flex="2"/>
                 </vbox>
             </column>
         </columns>
@@ -56,7 +59,7 @@
                         <spacer flex="1"/>
                     </row>
                     <row>
-                        <checkbox id="tryagainRepeating" label="&options.repeat;"/>
+                        <checkbox id="tryagainRepeating" label="&options.repeat;" oncommand="TryAgain_prefs.updateOptions(this);"/>
                         <textbox id="tryagainRepeat" type="number" min="0" style="width:5em;"/>
                         <spacer flex="1"/>
                     </row>

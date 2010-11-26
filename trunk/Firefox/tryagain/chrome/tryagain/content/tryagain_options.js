@@ -1,4 +1,5 @@
 var TryAgain_prefs = {
+    version: '3.4.3',
     console: Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService),
     debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
@@ -23,21 +24,38 @@ var TryAgain_prefs = {
         }
     },
     
+    updateOptions: function(option) {
+        var op_repeating = document.getElementById("tryagainRepeating");
+        var op_repeat = document.getElementById("tryagainRepeat");
+        op_repeat.disabled = (op_repeating.getAttribute('checked') != 'true');
+    },
+
     // Loads preferences into the options.xul window
     load: function() {
         try {
+            var version = document.getElementById("tryAgainVersion");
+            version.value = TryAgain_prefs.version;
             var op_enabled = document.getElementById("tryagainEnabled");
-            op_enabled.value = TryAgain_prefs.getPreference("enabled");
+            op_enabled.setAttribute('checked', (TryAgain_prefs.getPreference("enabled")==1 ? 'true' : 'false'));
+            op_enabled.focus();
             var op_timeout = document.getElementById("tryagainTimeout");
             op_timeout.value = TryAgain_prefs.getPreference("timeout");
+            var op_repeating = document.getElementById("tryagainRepeating");
+            op_repeating.setAttribute('checked', (TryAgain_prefs.getPreference("repeating")==1 ? 'true' : 'false'));
             var op_repeat = document.getElementById("tryagainRepeat");
             op_repeat.value = TryAgain_prefs.getPreference("repeat");
+            if (op_repeat.value == 0) {
+                op_repeating.setAttribute('checked', 'false');
+            }
             var op_showmenu = document.getElementById("tryagainShowMenu");
             op_showmenu.setAttribute('checked', (TryAgain_prefs.getPreference("showmenu")==1 ? 'true' : 'false'));
             var op_hidetips = document.getElementById("tryagainHideTips");
             op_hidetips.setAttribute('checked', (TryAgain_prefs.getPreference("hidetips")==1 ? 'true' : 'false'));
             var op_useauditing = document.getElementById("tryagainUseAuditing");
             op_useauditing.setAttribute('checked', (TryAgain_prefs.getPreference("useauditing")==1 ? 'true' : 'false'));
+            
+            // Update controls
+            TryAgain_prefs.updateOptions(op_repeating);
         } catch(e) {
             TryAgain_prefs.error(e);
         }
@@ -71,7 +89,7 @@ var TryAgain_prefs = {
             var op_showmenu = document.getElementById("tryagainShowMenu");
             var wm  = Components.classes["@mozilla.org/appshell/window-mediator;1"].getService(Components.interfaces.nsIWindowMediator)
             var win, menu;
-            if (!wm) {
+            if (wm) {
                 // Default for Mozilla browsers
                 var win = wm.getMostRecentWindow("navigator:browser");
                 if (!win) {
@@ -93,9 +111,9 @@ var TryAgain_prefs = {
                     TryAgain_prefs.savePreference("showmenu", 1);
                 } else {
                     menu.hidden = true;
-                    menu.setAttribute("checked","true");
                     TryAgain_prefs.savePreference("showmenu", 0);
                 }
+                menu.setAttribute("checked", op_enabled.getAttribute('checked'));
                 win.TryAgain.iAmActive = !win.TryAgain.iAmActive;
             } else {
                 TryAgain_prefs.error("could not find menu entry");

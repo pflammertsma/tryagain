@@ -1,6 +1,16 @@
 <!ENTITY name.tryagain "TryAgain">
 <!ENTITY menu.tryagain "Activer TryAgain">
+
 <!ENTITY options.title "Options de l'extension TryAgain">
+<!ENTITY options.general "General">
+<!ENTITY options.trying_again "Trying again">
+<!ENTITY options.other "Other">
+
+<!ENTITY options.support_site "Give feedback / report a bug">
+<!ENTITY options.translation_site "Contribute by translating">
+<!ENTITY options.facebook_page "Facebook fan page">
+
+<!ENTITY options.enable "Activer TryAgain">
 <!ENTITY options.timeout "Temps restant :">
 <!ENTITY options.seconds "secondes">
 <!ENTITY options.repeat "Nombre maximal d'essais :">
