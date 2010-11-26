@@ -1,9 +1,19 @@
 <!ENTITY name.tryagain "TryAgain">
-<!ENTITY menu.tryagain "Enable TryAgain">
-<!ENTITY options.title "TryAgain options">
-<!ENTITY options.timeout "Timeout:">
-<!ENTITY options.seconds "seconds">
-<!ENTITY options.repeat "Maximum tries:">
-<!ENTITY options.showmenu "Show item in Tools menu">
-<!ENTITY options.hidetips "Hide network diagnostic tips">
-<!ENTITY options.useauditing "Automatically check website status">
+<!ENTITY menu.tryagain "Ativar TryAgain">
+
+<!ENTITY options.title "TryAgain - Opções">
+<!ENTITY options.general "General">
+<!ENTITY options.trying_again "Trying again">
+<!ENTITY options.other "Other">
+
+<!ENTITY options.support_site "Give feedback / report a bug">
+<!ENTITY options.translation_site "Contribute by translating">
+<!ENTITY options.facebook_page "Facebook fan page">
+
+<!ENTITY options.enable "Ativar TryAgain">
+<!ENTITY options.timeout "Tempo de espera:">
+<!ENTITY options.seconds "segundos">
+<!ENTITY options.repeat "Máximo número de tentativas:">
+<!ENTITY options.showmenu "Mostrar item no menu Ferramentas">
+<!ENTITY options.hidetips "Esconder sugestões de diagnóstico de rede">
+<!ENTITY options.useauditing "Automaticamente verificar o status do site">

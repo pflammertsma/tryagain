@@ -1,6 +1,16 @@
 <!ENTITY name.tryagain "TryAgain">
 <!ENTITY menu.tryagain "TryAgain aktivieren">
+
 <!ENTITY options.title "TryAgain Einstellungen">
+<!ENTITY options.general "General">
+<!ENTITY options.trying_again "Trying again">
+<!ENTITY options.other "Other">
+
+<!ENTITY options.support_site "Give feedback / report a bug">
+<!ENTITY options.translation_site "Contribute by translating">
+<!ENTITY options.facebook_page "Facebook fan page">
+
+<!ENTITY options.enable "TryAgain aktivieren">
 <!ENTITY options.timeout "Timeout nach:">
 <!ENTITY options.seconds "Sekunden">
 <!ENTITY options.repeat "Maximale Versuche:">

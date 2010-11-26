@@ -1,7 +1,6 @@
 window.addEventListener("load", function(e) { TryAgain.init(); }, false);
 
 var TryAgain = {
-    version: '3.4.3',
     STATUS_UNKNOWN: 0,
     STATUS_POLLING: 1,
     STATUS_LOCAL: 2,
@@ -122,13 +121,15 @@ var TryAgain = {
             var stop_key = document.getElementById("key_stop");
             stop_key.addEventListener("command", TryAgain.stop, true);
 
-            // Show or hide the menu item:
-            if (TryAgain_prefs.getPreference("showmenu")==1) {
-                var menu = document.getElementById("TryAgainMenuItem");
-                if (menu) {
-                    menu.setAttribute("style","");
+            var menu = document.getElementById("TryAgainMenuItem");
+            if (menu) {
+                // Show or hide the menu item:
+                if (TryAgain_prefs.getPreference("showmenu") == 1) {
+                    menu.setAttribute("style", "");
                     menu.hidden = false;
                 }
+                var enabled = TryAgain_prefs.getPreference("enabled");
+                menu.setAttribute('checked', enabled == 1);
             }
         } catch (e) {
             TryAgain.trace(document, e);
@@ -142,13 +143,9 @@ var TryAgain = {
 
     // Is called when user toggles the 'Enable TryAgain' menu option.
     toggleActive: function(menu) {
-        if (menu.getAttribute('checked')=='true') {
-            menu.setAttribute('checked',false);
-            TryAgain_prefs.savePreference("enabled", 0);
-        } else {
-            menu.setAttribute('checked',true);
-            TryAgain_prefs.savePreference("enabled", 1);
-        }
+        var enabled = 1-TryAgain_prefs.getPreference("enabled");
+        menu.setAttribute('checked', enabled == 1);
+        TryAgain_prefs.savePreference("enabled", enabled);
     },
 
     // Returns the tab from which an onpageload event was fired
@@ -215,7 +212,7 @@ var TryAgain = {
     },
     
     urlify: function(url, tab_uri, for_request) {
-        url = url.replace('%source%', 'fx-tryagain-'+TryAgain.version);
+        url = url.replace('%source%', 'fx-tryagain-'+TryAgain_prefs.version);
         if (!tab_uri) {
             tab_uri = '';
         }
@@ -441,12 +438,15 @@ var TryAgain = {
                 li.appendChild(a);
                 tryagainList.appendChild(li);
 
-                li = doc.createElement("li");
-                li.innerHTML = TryAgain.getFormattedString("text.notify_me", []) + " ";
-                a = doc.createElement("a");
-                a.innerHTML = TryAgain.getFormattedString("text.when_site_comes_online", []);
-                li.appendChild(a);
-                tryagainList.appendChild(li);
+                // Use for affiliate program(s)
+                if (false) {
+                    li = doc.createElement("li");
+                    li.innerHTML = TryAgain.getFormattedString("text.notify_me", []) + " ";
+                    a = doc.createElement("a");
+                    a.innerHTML = TryAgain.getFormattedString("text.when_site_comes_online", []);
+                    li.appendChild(a);
+                    tryagainList.appendChild(li);
+                }
 
                 var tryagainContainer = doc.createElement("div");
                 tryagainContainer.setAttribute("id", "tryagainContainer");

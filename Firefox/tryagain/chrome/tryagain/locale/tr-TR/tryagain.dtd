@@ -1,6 +1,16 @@
 <!ENTITY name.tryagain "TryAgain">
 <!ENTITY menu.tryagain "TryAgain etkinleştir">
+
 <!ENTITY options.title "TryAgain seçenekler">
+<!ENTITY options.general "General">
+<!ENTITY options.trying_again "Trying again">
+<!ENTITY options.other "Other">
+
+<!ENTITY options.support_site "Give feedback / report a bug">
+<!ENTITY options.translation_site "Contribute by translating">
+<!ENTITY options.facebook_page "Facebook fan page">
+
+<!ENTITY options.enable "TryAgain etkinleştir">
 <!ENTITY options.timeout "Zamanaşımı:">
 <!ENTITY options.seconds "saniye">
 <!ENTITY options.repeat "En fazla deneme:">

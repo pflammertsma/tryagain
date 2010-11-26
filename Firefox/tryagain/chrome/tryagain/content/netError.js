@@ -37,7 +37,7 @@ function disableTryAgain() {
 function retryThisExtended() {
     document.getElementById("errorStopRetry").disabled = false;
     auto_retry = RETRY_OTHER;
-    retryThis();
+    retryThis(null);
 }
 
 function autoRetryThis() {
@@ -76,7 +76,7 @@ function autoRetryThis() {
         // Done counting down; reload.
         retrying = true;
         document.getElementById("errorAutoRetry3").innerHTML = text_tryagain;
-        retryThis();
+        retryThis(null);
     }
 }
 
@@ -141,7 +141,7 @@ function getDescription() {
     return decodeURIComponent(url.slice(desc + 2));
 }
 
-function retryThis() {
+function retryThis(buttonEl) {
     // Session history has the URL of the page that failed
     // to load, not the one of the error page. So, just call
     // reload(), which will also repost POST data correctly.
