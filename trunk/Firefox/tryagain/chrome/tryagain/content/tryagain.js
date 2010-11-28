@@ -13,6 +13,15 @@ var TryAgain = {
             downforeojm: [ "http://downforeveryoneorjustme.com/%url%?src=%source%", "<title>([^<]*)</title>", "It's not just you!", "It's just you." ],
             uptimeauditor: [ "http://uptimeauditor.com/quicksitecheck.php?x=%url%&src=%source%", "/(fail|ok).gif", "fail", "ok" ],
         },
+    cacheServices: [
+            [ "coral_cdn", "http://%domain%.nyud.net/%url_suffix_escaped%", "http://coralcdn.org/imgs/circles.ico" ],
+            [ "google", "http://72.14.209.104/search?q=cache:%url_escaped%", "http://google.com/favicon.ico" ],
+            [ "wayback", "http://web.archive.org/web/*/%url_escaped%", "http://web.archive.org/favicon.ico" ],
+            [ "bing", "http://www.bing.com/search?q=url:%url_escaped%", "http://www.bing.com/favicon.ico" ],
+            [ "yahoo", "http://search.yahoo.com/search?p=%url_escaped%", "http://search.yahoo.com/favicon.ico" ],
+            [ "gigablast", "http://www.gigablast.com/index.php?q=url:%url_escaped%", "http://www.gigablast.com/favicon.ico" ],
+            [ "webcite", "http://webcitation.org/query.php?url=%url_escaped%", "http://webcitation.org/favicon.ico" ],
+        ],
     debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
     trace: function(doc, err, msg) {
@@ -77,7 +86,7 @@ var TryAgain = {
         parentBtn.parentNode.appendChild(btn);
         return btn;
     },
-
+    
     getString: function(str) {
         try {
             return TryAgain.strbundle.getString(str);
@@ -151,7 +160,8 @@ var TryAgain = {
             if (TryAgain.isActive()) {
                 try {
                     TryAgain.checkConflict("Fierr", "{2E481B23-66AC-313F-D6A8-A81DDDF26249}");
-                    TryAgain.checkConflict("Resurrect Pages", "{0c8fbd76-bdeb-4c52-9b24-d587ce7b9dc3}");
+                    // TryAgain IS compatible with Resurrect Pages
+                    // TryAgain.checkConflict("Resurrect Pages", "{0c8fbd76-bdeb-4c52-9b24-d587ce7b9dc3}");
                 } catch (e) {
                     TryAgain.error(e);
                 }
@@ -352,8 +362,29 @@ var TryAgain = {
         if (!tab_uri) {
             tab_uri = '';
         }
+        var domain = tab_uri;
+        var protocol = 'http://';
+        var pos1 = tab_uri.indexOf('/');
+        if (pos1 > 0) {
+            pos1++;
+            protocol = tab_uri.substr(0, pos1);
+        }
+        var pos2 = tab_uri.indexOf('/', pos1+1);
+        var suffix = '';
+        if (pos2 > 0) {
+            domain = tab_uri.substr(pos1, pos2-pos1);
+            pos2++;
+            if (pos2 < tab_uri.length) {
+                suffix = tab_uri.substr(pos2);
+            }
+        } else {
+            pos2 = tab_uri.length;
+        }
         url = url.replace('%url%', tab_uri);
         url = url.replace('%url_escaped%', escape(tab_uri));
+        url = url.replace('%protocol%', protocol);
+        url = url.replace('%domain%', domain);
+        url = url.replace('%url_suffix_escaped%', suffix);
         if (!for_request) {
             url = url.replace('&', '&amp;');
         }
@@ -485,7 +516,7 @@ var TryAgain = {
             }
         }
     },
-
+    
     // Executed on every pageload
     onPageLoad: function(anEvent) {
         var errmessage = "";
@@ -527,9 +558,16 @@ var TryAgain = {
                 var script2 = doc.createElement("script");
                 script2.setAttribute("src", "chrome://tryagain/content/netError.js");
                 script1.parentNode.appendChild(script2);
-    
+
                 var vars = doc.createElement("script");
                 script1.parentNode.appendChild(vars);
+
+                var style = doc.createElement("link");
+                style.setAttribute("rel", "stylesheet");
+                style.setAttribute("type", "text/css");
+                style.setAttribute("media", "all");
+                style.setAttribute("href", "chrome://tryagain/content/tryagain.css");
+                script1.parentNode.appendChild(style);
 
                 var stopRetry_btn = TryAgain.createButton(doc, tryAgain_btn, TryAgain.getString("text.stop_trying"));
                 stopRetry_btn.setAttribute("onclick", "stopRetry();");
@@ -562,19 +600,27 @@ var TryAgain = {
                 tryagainList.appendChild(li);
 
                 li = doc.createElement("li");
-                li.innerHTML = TryAgain.getFormattedString("text.view_with", []) + " ";
-                var a = doc.createElement("a");
-                a.setAttribute("id", "errorGoogleCache");
-                a.innerHTML = TryAgain.getFormattedString("text.cache_google", []);
-                li.appendChild(a);
-                tryagainList.appendChild(li);
-
-                li = doc.createElement("li");
-                li.innerHTML = TryAgain.getFormattedString("text.view_with", []) + " ";
-                a = doc.createElement("a");
-                a.setAttribute("id", "errorWebArchive");
-                a.innerHTML = TryAgain.getFormattedString("text.cache_wayback", []);
-                li.appendChild(a);
+                li.setAttribute("id", "status_caches");
+                var span = doc.createElement("span");
+                span.innerHTML = TryAgain.getFormattedString("text.view_with", []) + ": ";
+                li.appendChild(span);
+                for (id in TryAgain.cacheServices) {
+                    var srv = TryAgain.cacheServices[id];
+                    var a = doc.createElement("a");
+                    a.setAttribute("id", "errorCache_" + id);
+                    var img = doc.createElement("img");
+                    img.src = srv[2];
+                    a.appendChild(img);
+                    var span = doc.createElement("span");
+                    span.innerHTML = TryAgain.getFormattedString("text.cache_" + srv[0], []);
+                    a.appendChild(span);
+                    li.appendChild(a);
+                    if (false && id < TryAgain.cacheServices.length - 1) {
+                        span = doc.createElement("span");
+                        span.innerHTML = ", ";
+                        li.appendChild(span);
+                    }
+                }
                 tryagainList.appendChild(li);
 
                 // Use for affiliate program(s)
@@ -670,12 +716,12 @@ var TryAgain = {
                 }
                 vars.innerHTML = "var p_timeout = "+timeout+"; var p_repeating = "+repeating+"; var p_max_repeat = "+max_repeat+"; var p_repeat = "+repeat+";\n"
                                + extraHTML;
-                
-                var errorGoogleCache = doc.getElementById("errorGoogleCache");
-                if (errorGoogleCache) errorGoogleCache.setAttribute('href', TryAgain.urlify('http://72.14.209.104/search?q=cache:%url_escaped%', tab_uri));
 
-                var errorWebArchive = doc.getElementById("errorWebArchive");
-                if (errorWebArchive) errorWebArchive.setAttribute('href', TryAgain.urlify('http://web.archive.org/web/*/%url_escaped%', tab_uri));
+                for (id in TryAgain.cacheServices) {
+                    var srv = TryAgain.cacheServices[id];
+                    var cache = doc.getElementById("errorCache_" + id);
+                    if (cache) cache.setAttribute('href', TryAgain.urlify(srv[1], tab_uri));
+                }
 
                 var timer1;
                 try {
