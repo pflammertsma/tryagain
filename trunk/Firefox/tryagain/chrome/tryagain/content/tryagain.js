@@ -55,13 +55,12 @@ var TryAgain = {
         }
     },
 
-    createButton: function(doc, text) {
+    createButton: function(doc, parentBtn, text) {
         var btn;
         if (TryAgain.xulButtons == 0) {
             TryAgain.xulButtons = 1;
-            var btn = doc.getElementById('errorTryAgain');
-            if (btn) {
-                if (btn.nodeName=='button') {
+            if (parentBtn) {
+                if (parentBtn.nodeName=='button') {
                     TryAgain.xulButtons = 2;
                 }
             } else {
@@ -75,6 +74,7 @@ var TryAgain = {
             btn = doc.createElement("button");
             btn.innerHTML = TryAgain.getString("text.stop_trying");
         }
+        parentBtn.parentNode.appendChild(btn);
         return btn;
     },
 
@@ -95,16 +95,75 @@ var TryAgain = {
         }
     },  
 
+    checkConflict: function(name, id) {
+        var ext;
+        if (Application.extensions) {
+            ext = Application.extensions.get(id);
+            if (ext) {
+                TryAgain.showConflict(name, id, ext);
+            }
+        } else {
+            Application.getExtensions(function(extensions) {
+                ext = extensions.get(id);
+                if (ext) {
+                    Components.utils.import("resource://gre/modules/AddonManager.jsm");
+                    AddonManager.getAddonByID(id, function(addon) {
+                        if (!addon.userDisabled) {
+                            TryAgain.showConflict(name, id, ext);
+                        }
+                    });
+                }
+            })
+        }
+    },
+    showConflict: function(name, id, ext) {
+        var message = 'TryAgain is incompatible with '+name+'; please only use one of the two add-ons.';
+        var nb = gBrowser.getNotificationBox();
+        var n = nb.getNotificationWithValue('tryagain-conflict-'+id);
+        if(n) {  
+            n.label = message;
+        } else {
+            var buttons = [{
+                label: 'Disable ' + name,
+                accessKey: name[0],
+                popup: null,
+                callback: TryAgain.disableExtension,
+                extension: ext
+            }, {
+                label: 'Disable TryAgain',
+                accessKey: 'T',
+                popup: null,
+                callback: TryAgain.disableTryAgain
+            }];
+
+            const priority = nb.PRIORITY_WARNING_LOW;
+            nb.appendNotification(message, 'tryagain-conflict-'+id,
+                                 'chrome://tryagain/skin/icon16.png',
+                                  priority, buttons);
+        }
+    },
+
+    extCheck: false,
     // Executed when application loads
     init: function() {
         try {
+            
+            if (TryAgain.isActive()) {
+                try {
+                    TryAgain.checkConflict("Fierr", "{2E481B23-66AC-313F-D6A8-A81DDDF26249}");
+                    TryAgain.checkConflict("Resurrect Pages", "{0c8fbd76-bdeb-4c52-9b24-d587ce7b9dc3}");
+                } catch (e) {
+                    TryAgain.error(e);
+                }
+            }
+
             // Load string resource:
             TryAgain.strbundle = document.getElementById("tryagain_strings");
             if (!TryAgain.strbundle) {
                 var extensionBundle = Components.classes["@mozilla.org/intl/stringbundle;1"].getService(Components.interfaces.nsIStringBundleService);
                 TryAgain.strbundle = extensionBundle.createBundle("chrome://tryagain/locale/tryagain.properties");
             }
-            
+
             // Add listener to the PageLoad event:
             var appcontent = document.getElementById("appcontent");
             if (appcontent) {
@@ -143,9 +202,86 @@ var TryAgain = {
 
     // Is called when user toggles the 'Enable TryAgain' menu option.
     toggleActive: function(menu) {
-        var enabled = 1-TryAgain_prefs.getPreference("enabled");
-        menu.setAttribute('checked', enabled == 1);
-        TryAgain_prefs.savePreference("enabled", enabled);
+        var enabled = TryAgain_prefs.getPreference("enabled");
+        if (enabled == 1) {
+            TryAgain.disable(menu);
+        } else {
+            TryAgain.enable(menu);
+        }
+    },
+
+    enable: function(menu) {
+        if (menu) menu.setAttribute('checked', true);
+        TryAgain_prefs.savePreference("enabled", true);
+    },
+
+    disable: function(menu) {
+        if (menu) menu.setAttribute('checked', false);
+        TryAgain_prefs.savePreference("enabled", false);
+    },
+
+    disableTryAgain: function(notification, data) {
+        TryAgain.disable(document.getElementById("TryAgainMenuItem"));
+        notification.close();
+    },
+
+    disableExtension: function(notification, data) {
+        var man = Components.classes["@mozilla.org/extensions/manager;1"];
+        if (man) {
+            man = man.getService(Components.interfaces.nsIExtensionManager);
+        }
+        if (man) {
+            alert(man.getItemForID(data.extension.id).type);
+            alert(man.getInstallLocation(data.extension.id).location.path);
+            //man.disableItem(data.extension.id);
+            //TryAgain.promptRestart();
+        } else {
+            Components.utils.import("resource://gre/modules/AddonManager.jsm");
+            AddonManager.getAddonByID(data.extension.id, function(addon) {
+                addon.userDisabled = true;
+                TryAgain.promptRestart();
+            });
+        }
+        notification.close();
+    },
+    
+    promptRestart: function() {
+        var name = 'the application';
+        try {
+            var appInfo = Components.classes["@mozilla.org/xre/app-info;1"]
+                    .getService(Components.interfaces.nsIXULAppInfo);
+            name = appInfo.name;
+        } catch (e) {
+        }
+        var message = 'Restart ' + name + ' to apply the changes.';
+        var nb = gBrowser.getNotificationBox();
+        var n = nb.getNotificationWithValue('tryagain-restart');  
+        if(n) {  
+            n.label = message;
+        } else {
+            var buttons = [{
+                label: 'Restart ' + name,
+                accessKey: 'R',
+                popup: null,
+                callback: TryAgain.restart
+            }];
+
+            const priority = nb.PRIORITY_WARNING_LOW;
+            nb.appendNotification(message, 'tryagain-restart',
+                                 'chrome://tryagain/skin/icon16.png',
+                                  priority, buttons);
+        }
+    },
+    restart: function() {
+        var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"];
+        if (appStartup) {
+            appStartup = appStartup.getService(Components.interfaces.nsIAppStartup);
+        }
+        if (appStartup) {
+            appStartup.quit(appStartup.eAttemptQuit | appStartup.eRestart);
+        } else if (Application.restart) {
+            Application.restart();
+        }
     },
 
     // Returns the tab from which an onpageload event was fired
@@ -368,7 +504,11 @@ var TryAgain = {
                                    + "var text_tryagain = '"+TryAgain.getString("text.tryagain")+"';\n"
                                    + "var text_tried_times = '"+TryAgain.getString("text.tried_times")+"';\n";
     
-                var tryAgain_btn = doc.getElementById("errorTryAgain");
+                var tryAgain_btn = doc.getElementById('errorTryAgain');
+                if (!tryAgain_btn) {
+                    // Support for Fierr
+                    tryAgain_btn = doc.getElementById('tryAgain');
+                }
                 
                 if (!TryAgain.isActive()) {
                     // Hide the TryAgain part:
@@ -391,11 +531,10 @@ var TryAgain = {
                 var vars = doc.createElement("script");
                 script1.parentNode.appendChild(vars);
 
-                var stopRetry_btn = TryAgain.createButton(doc, TryAgain.getString("text.stop_trying"));
+                var stopRetry_btn = TryAgain.createButton(doc, tryAgain_btn, TryAgain.getString("text.stop_trying"));
                 stopRetry_btn.setAttribute("onclick", "stopRetry();");
                 stopRetry_btn.setAttribute("id", "errorStopRetry");
-                tryAgain_btn.parentNode.appendChild(stopRetry_btn);
-    
+
                 var increment_btn = doc.createElement("button");
                 increment_btn.setAttribute("id", "errorIncrement");
                 increment_btn.setAttribute("onclick", "autoRetryThis();");
