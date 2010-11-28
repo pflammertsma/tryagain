@@ -26,8 +26,11 @@ var retrying = false;
 function disableTryAgain() {
     p_timeout = -1;
     auto_retry = RETRY_NONE;
+    var btn = document.getElementById("errorTryAgain");
+    if (btn) {
+        btn.style.display = "none";
+    }
     document.getElementById("tryagainContainer").style.display = "none";
-    document.getElementById("errorTryAgain").style.display = "none";
     document.getElementById("errorStopRetry").style.display = "none";
     document.getElementById("errorGoogleCache").style.display = "none";
     document.getElementById("errorWebArchive").style.display = "none";
@@ -83,8 +86,11 @@ function autoRetryThis() {
 function stopRetry() {
     window.stop();
     auto_retry = RETRY_CANCEL;
+    var btn = document.getElementById("errorTryAgain");
+    if (btn) {
+        btn.disabled = false;
+    }
     document.getElementById("errorStopRetry").disabled = true;
-    document.getElementById("errorTryAgain").disabled  = false;
     autoRetryThis();
 }
 
@@ -151,7 +157,10 @@ function retryThis(buttonEl) {
         // We probably tried to reload a URI that caused an exception to
         // occur;    e.g. a non-existent file.
     }
-    document.getElementById("errorTryAgain").disabled = true;
+    var btn = document.getElementById("errorTryAgain");
+    if (btn) {
+        btn.disabled = true;
+    }
     document.getElementById("errorStopRetry").disabled = false;
 }
 
@@ -215,7 +224,10 @@ function initPage() {
     if (err == "nssBadCert") {
         // Remove the "Try again" button for security exceptions, since it's
         // almost certainly useless.
-        document.getElementById("errorTryAgain").style.display = "none";
+        var btn = document.getElementById("errorTryAgain");
+        if (btn) {
+            btn.style.display = "none";
+        }
         document.getElementById("errorPageContainer").setAttribute("class", "certerror");
         disableTryAgain();
         addDomainErrorLink();
