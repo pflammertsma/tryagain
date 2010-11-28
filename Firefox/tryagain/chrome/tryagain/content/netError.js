@@ -31,9 +31,7 @@ function disableTryAgain() {
         btn.style.display = "none";
     }
     document.getElementById("tryagainContainer").style.display = "none";
-    document.getElementById("errorStopRetry").style.display = "none";
-    document.getElementById("errorGoogleCache").style.display = "none";
-    document.getElementById("errorWebArchive").style.display = "none";
+    document.getElementById("tryagainList").style.display = "none";
     document.getElementById("retry_x_of_y").style.display = "none";
 }
 
