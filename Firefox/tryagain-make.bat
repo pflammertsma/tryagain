@@ -8,3 +8,4 @@ cd ..
 del chrome\tryagain.jar
 cd ..
 move tryagain\tryagain.zip tryagain.xpi
+
