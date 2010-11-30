@@ -1,0 +1,78 @@
+#status_caches > a {
+  text-decoration: none;
+  display: block;
+  margin-left: 6em;
+}
+#status_caches > span {
+  float: left;
+  line-height: 16px;
+}
+#status_caches a span {
+  text-decoration: underline;
+}
+#status_caches a img {
+  border: 0;
+  width: 16px;
+  height: 16px;
+  padding: 0 3px 0 0;
+  vertical-align: bottom;
+}
+
+html.tryagain {
+  /*background-color: threedshadow;*/
+  background: url("chrome://tryagain/skin/background.png") repeat black;
+}
+html.tryagain #errorPageContainer {
+  margin-top: 2em;
+  border: 1px solid black;
+  -moz-border-radius: 7px 7px 7px 7px;
+  background: url("chrome://tryagain/skin/bg_body.png") repeat;
+}
+html.tryagain #errorPageContainer.btm {
+  margin-top: 0;
+  max-width: 52em;
+  border-top: none;
+  -moz-border-radius: 0 0 7px 7px;
+  padding: 0 36px 3em 36px;
+}
+/* url("chrome://global/skin/icons/warning-large.png") */
+html.tryagain #errorTitle {
+  -moz-border-radius: 5px 5px 0 0;
+  margin: -3em -3em 0 -3em;
+  -moz-margin-start: -30px;
+  background: url("chrome://tryagain/skin/bg_title.png") repeat;
+  color: white;
+  padding: 2em 2em 2em 3em;
+}
+html.tryagain #errorTitle #errorTitleIcon {
+  margin-left: -36px;
+  margin-top: -2em;
+  width: 128px;
+  height: 128px;
+  -moz-border-radius: 7px 7px 7px 7px;
+  background: url("chrome://tryagain/skin/warning.png") no-repeat scroll -46px -34px transparent;
+  position: absolute;
+}
+html.tryagain #errorTitle.top {
+  -moz-border-radius: 7px 7px 0 0;
+  margin: 2em auto 0 auto;
+  max-width: 52em;
+  padding: 2em 36px 2em 36px;
+  border: 1px solid black;
+  border-bottom: none;
+}
+html.tryagain #errorTitle * {
+  -moz-margin-start: 80px;
+}
+html.tryagain #errorTitle h1 {
+  border: none;
+}
+html.tryagain #errorTitle p {
+  font-size: 130%;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+html.tryagain #errorLongContent {
+  padding-top: 2em;
+}
+html.tryagain {}

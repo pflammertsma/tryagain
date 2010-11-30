@@ -15,7 +15,7 @@ var TryAgain = {
         },
     cacheServices: [
             [ "coral_cdn", "http://%domain%.nyud.net/%url_suffix_escaped%", "http://coralcdn.org/imgs/circles.ico" ],
-            [ "google", "http://72.14.209.104/search?q=cache:%url_escaped%", "http://google.com/favicon.ico" ],
+            [ "google", "http://webcache.googleusercontent.com/search?q=cache:%url_escaped%", "http://google.com/favicon.ico" ],
             [ "wayback", "http://web.archive.org/web/*/%url_escaped%", "http://web.archive.org/favicon.ico" ],
             [ "bing", "http://www.bing.com/search?q=url:%url_escaped%", "http://www.bing.com/favicon.ico" ],
             [ "yahoo", "http://search.yahoo.com/search?p=%url_escaped%", "http://search.yahoo.com/favicon.ico" ],
@@ -86,7 +86,7 @@ var TryAgain = {
         parentBtn.parentNode.appendChild(btn);
         return btn;
     },
-    
+
     getString: function(str) {
         try {
             return TryAgain.strbundle.getString(str);
@@ -530,6 +530,26 @@ var TryAgain = {
         if (doc.documentURI.substr(0,14)=="about:neterror") {
             var tab;
             try {
+                var html = doc.getElementsByTagName("html")[0];
+                html.setAttribute("class", "tryagain");
+
+                var page = doc.getElementById('errorPageContainer');
+                var title = doc.getElementById('errorTitle');
+                if (true) {
+                    // Reposition title above body
+                    page.removeChild(title);
+                    page.parentNode.insertBefore(title, page);
+                    page.setAttribute("class", "btm");
+                    title.setAttribute("class", "top");
+                }
+                var titleTxt = doc.getElementById('errorTitleText');
+                var icon = doc.createElement("div");
+                icon.setAttribute("id", "errorTitleIcon");
+                title.insertBefore(icon, titleTxt);
+                var txt = doc.getElementById('errorShortDescText');
+                txt.parentNode.removeChild(txt);
+                title.appendChild(txt);
+
                 var script1 = doc.getElementsByTagName("script")[0];
                 var extraHTML = "var text_cancelled = '"+TryAgain.getString("text.cancelled")+"';\n"
                                    + "var text_tryagain = '"+TryAgain.getString("text.tryagain")+"';\n"
@@ -579,7 +599,7 @@ var TryAgain = {
                 increment_btn.style.display = "none";
                 tryAgain_btn.parentNode.appendChild(increment_btn);
 
-                var retry_x_of_y = doc.createElement("p");
+                var retry_x_of_y = doc.createElement("div");
                 retry_x_of_y.setAttribute("id", "retry_x_of_y");
                 doc.getElementById("errorTitle").appendChild(retry_x_of_y);
     
