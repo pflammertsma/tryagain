@@ -9,18 +9,20 @@ var TryAgain = {
     downStatus: [],
     httpRequest: false,
     xulButtons: 0,
+    customStyle: false,
+    checkConflicts: false,
     downCheckServers: {
             downforeojm: [ "http://downforeveryoneorjustme.com/%url%?src=%source%", "<title>([^<]*)</title>", "It's not just you!", "It's just you." ],
             uptimeauditor: [ "http://uptimeauditor.com/quicksitecheck.php?x=%url%&src=%source%", "/(fail|ok).gif", "fail", "ok" ],
         },
     cacheServices: [
-            [ "coral_cdn", "http://%domain%.nyud.net/%url_suffix_escaped%", "http://coralcdn.org/imgs/circles.ico" ],
-            [ "google", "http://webcache.googleusercontent.com/search?q=cache:%url_escaped%", "http://google.com/favicon.ico" ],
-            [ "wayback", "http://web.archive.org/web/*/%url_escaped%", "http://web.archive.org/favicon.ico" ],
-            [ "bing", "http://www.bing.com/search?q=url:%url_escaped%", "http://www.bing.com/favicon.ico" ],
-            [ "yahoo", "http://search.yahoo.com/search?p=%url_escaped%", "http://search.yahoo.com/favicon.ico" ],
-            [ "gigablast", "http://www.gigablast.com/index.php?q=url:%url_escaped%", "http://www.gigablast.com/favicon.ico" ],
-            [ "webcite", "http://webcitation.org/query.php?url=%url_escaped%", "http://webcitation.org/favicon.ico" ],
+            [ "coral_cdn", "http://%domain%.nyud.net/%url_suffix_escaped%", "http://coralcdn.org/imgs/circles.ico", true ],
+            [ "google", "http://webcache.googleusercontent.com/search?q=cache:%url_escaped%", "http://google.com/favicon.ico", true ],
+            [ "wayback", "http://web.archive.org/web/*/%url_escaped%", "http://web.archive.org/favicon.ico", false ],
+            [ "bing", "http://www.bing.com/search?q=url:%url_escaped%", "http://www.bing.com/favicon.ico", false ],
+            [ "yahoo", "http://search.yahoo.com/search?p=%url_escaped%", "http://search.yahoo.com/favicon.ico", false ],
+            [ "gigablast", "http://www.gigablast.com/index.php?q=url:%url_escaped%", "http://www.gigablast.com/favicon.ico", false ],
+            [ "webcite", "http://webcitation.org/query.php?url=%url_escaped%", "http://webcitation.org/favicon.ico", false ],
         ],
     debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
@@ -157,7 +159,7 @@ var TryAgain = {
     init: function() {
         try {
             
-            if (TryAgain.isActive()) {
+            if (TryAgain.isActive() && TryAgain.checkConflicts) {
                 try {
                     TryAgain.checkConflict("Fierr", "{2E481B23-66AC-313F-D6A8-A81DDDF26249}");
                     // TryAgain IS compatible with Resurrect Pages
@@ -517,6 +519,23 @@ var TryAgain = {
         }
     },
     
+    addService: function(doc, li, srv, className) {
+        var div = doc.createElement("div");
+        if (className) {
+            div.setAttribute("class", className);
+        }
+        var a = doc.createElement("a");
+        a.setAttribute("id", "errorCache_" + id);
+        var img = doc.createElement("img");
+        img.src = srv[2];
+        a.appendChild(img);
+        var span = doc.createElement("span");
+        span.innerHTML = TryAgain.getFormattedString("text.cache_" + srv[0], []);
+        a.appendChild(span);
+        div.appendChild(a);
+        li.appendChild(div);
+    },
+    
     // Executed on every pageload
     onPageLoad: function(anEvent) {
         var errmessage = "";
@@ -530,25 +549,29 @@ var TryAgain = {
         if (doc.documentURI.substr(0,14)=="about:neterror") {
             var tab;
             try {
-                var html = doc.getElementsByTagName("html")[0];
-                html.setAttribute("class", "tryagain");
 
-                var page = doc.getElementById('errorPageContainer');
-                var title = doc.getElementById('errorTitle');
-                if (true) {
-                    // Reposition title above body
-                    page.removeChild(title);
-                    page.parentNode.insertBefore(title, page);
-                    page.setAttribute("class", "btm");
-                    title.setAttribute("class", "top");
+                if (TryAgain.customStyle) {
+                    var html = doc.getElementsByTagName("html")[0];
+                    html.setAttribute("class", "tryagain");
+                    html.style.backgroundImage = "url('chrome://tryagain/skin/backgrounds/aluminium.png')";
+
+                    var page = doc.getElementById('errorPageContainer');
+                    var title = doc.getElementById('errorTitle');
+                    if (true) {
+                        // Reposition title above body
+                        page.removeChild(title);
+                        page.parentNode.insertBefore(title, page);
+                        page.setAttribute("class", "btm");
+                        title.setAttribute("class", "top");
+                    }
+                    var titleTxt = doc.getElementById('errorTitleText');
+                    var icon = doc.createElement("div");
+                    icon.setAttribute("id", "errorTitleIcon");
+                    title.insertBefore(icon, titleTxt);
+                    var txt = doc.getElementById('errorShortDescText');
+                    txt.parentNode.removeChild(txt);
+                    title.appendChild(txt);
                 }
-                var titleTxt = doc.getElementById('errorTitleText');
-                var icon = doc.createElement("div");
-                icon.setAttribute("id", "errorTitleIcon");
-                title.insertBefore(icon, titleTxt);
-                var txt = doc.getElementById('errorShortDescText');
-                txt.parentNode.removeChild(txt);
-                title.appendChild(txt);
 
                 var script1 = doc.getElementsByTagName("script")[0];
                 var extraHTML = "var text_cancelled = '"+TryAgain.getString("text.cancelled")+"';\n"
@@ -560,7 +583,7 @@ var TryAgain = {
                     // Support for Fierr
                     tryAgain_btn = doc.getElementById('tryAgain');
                 }
-                
+
                 if (!TryAgain.isActive()) {
                     // Hide the TryAgain part:
                     var tryagainContainer = doc.getElementById("tryagainContainer");
@@ -598,6 +621,15 @@ var TryAgain = {
                 increment_btn.setAttribute("onclick", "autoRetryThis();");
                 increment_btn.style.display = "none";
                 tryAgain_btn.parentNode.appendChild(increment_btn);
+                
+                if (!TryAgain.isActive()) {
+                    var iconBox = doc.createElement("div");
+                    iconBox.setAttribute("id", "errorTitleIconBox");
+                    var icon2 = doc.createElement("div");
+                    icon2.setAttribute("id", "errorTitleIcon2");
+                    iconBox.appendChild(icon2);
+                    tryAgain_btn.parentNode.appendChild(iconBox);
+                }
 
                 var retry_x_of_y = doc.createElement("div");
                 retry_x_of_y.setAttribute("id", "retry_x_of_y");
@@ -624,21 +656,33 @@ var TryAgain = {
                 var span = doc.createElement("span");
                 span.innerHTML = TryAgain.getFormattedString("text.view_with", []) + ": ";
                 li.appendChild(span);
+                var moreServices;
                 for (id in TryAgain.cacheServices) {
                     var srv = TryAgain.cacheServices[id];
+                    if (!srv[3]) {
+                        moreServices = true;
+                        continue;
+                    }
+                    TryAgain.addService(doc, li, srv, "icon");
+                }
+                if (moreServices) {
+                    var div = doc.createElement("div");
+                    div.setAttribute("class", "expand");
                     var a = doc.createElement("a");
-                    a.setAttribute("id", "errorCache_" + id);
-                    var img = doc.createElement("img");
-                    img.src = srv[2];
-                    a.appendChild(img);
-                    var span = doc.createElement("span");
-                    span.innerHTML = TryAgain.getFormattedString("text.cache_" + srv[0], []);
-                    a.appendChild(span);
-                    li.appendChild(a);
-                    if (false && id < TryAgain.cacheServices.length - 1) {
-                        span = doc.createElement("span");
-                        span.innerHTML = ", ";
-                        li.appendChild(span);
+                    a.innerHTML = TryAgain.getFormattedString("text.more", []);
+                    a.href = "javascript:{}";
+                    a.addEventListener('click', function() {
+                        div.parentNode.setAttribute("class", "expanded");
+                        return false;
+                    }, false);
+                    div.appendChild(a);
+                    li.appendChild(div);
+                    for (id in TryAgain.cacheServices) {
+                        var srv = TryAgain.cacheServices[id];
+                        if (srv[3]) {
+                            continue;
+                        }
+                        TryAgain.addService(doc, li, srv, "icon extra");
                     }
                 }
                 tryagainList.appendChild(li);

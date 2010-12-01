@@ -1,16 +1,30 @@
-#status_caches > a {
-  text-decoration: none;
-  display: block;
-  margin-left: 6em;
-}
 #status_caches > span {
   float: left;
   line-height: 16px;
 }
-#status_caches a span {
+#status_caches > div {
+  margin-left: 6em;
+  height: 16px;
+}
+#status_caches > div.extra {
+  display: none;
+}
+#status_caches.expanded > div.extra {
+  display: block;
+}
+#status_caches.expanded > div.expand {
+  display: none;
+}
+#status_caches > div.icon a {
+  text-decoration: none;
+}
+#status_caches > div.icon a span {
   text-decoration: underline;
 }
-#status_caches a img {
+#status_caches > div.expand a {
+  margin-left: 19px;
+}
+#status_caches > div a img {
   border: 0;
   width: 16px;
   height: 16px;
@@ -19,14 +33,14 @@
 }
 
 html.tryagain {
-  /*background-color: threedshadow;*/
-  background: url("chrome://tryagain/skin/background.png") repeat black;
+  background-color: black;
+  background-repeat: repeat;
 }
 html.tryagain #errorPageContainer {
   margin-top: 2em;
   border: 1px solid black;
   -moz-border-radius: 7px 7px 7px 7px;
-  background: url("chrome://tryagain/skin/bg_body.png") repeat;
+  background: url("chrome://tryagain/skin/bg_body70.png") repeat;
 }
 html.tryagain #errorPageContainer.btm {
   margin-top: 0;
@@ -40,18 +54,32 @@ html.tryagain #errorTitle {
   -moz-border-radius: 5px 5px 0 0;
   margin: -3em -3em 0 -3em;
   -moz-margin-start: -30px;
-  background: url("chrome://tryagain/skin/bg_title.png") repeat;
+  background: url("chrome://tryagain/skin/bg_title70.png") repeat;
   color: white;
   padding: 2em 2em 2em 3em;
 }
 html.tryagain #errorTitle #errorTitleIcon {
   margin-left: -36px;
   margin-top: -2em;
-  width: 128px;
-  height: 128px;
+  width: 160px;
+  height: 160px;
   -moz-border-radius: 7px 7px 7px 7px;
-  background: url("chrome://tryagain/skin/warning.png") no-repeat scroll -46px -34px transparent;
+  background: url("chrome://tryagain/skin/warning.png") no-repeat scroll 0 0 transparent;
   position: absolute;
+  display: none;
+}
+html.tryagain #errorTitleIconBox {
+  margin-left: 55em;
+  margin-top: -278px;
+  position: absolute;
+}
+html.tryagain #errorTitleIcon2 {
+  background: url("chrome://tryagain/skin/warning_big.png") no-repeat scroll 46px 34px transparent;
+  -moz-border-radius: 7px 7px 7px 7px;
+  margin-left: -278px;
+  margin-top: 3em;
+  width: 248px;
+  height: 278px;
 }
 html.tryagain #errorTitle.top {
   -moz-border-radius: 7px 7px 0 0;
