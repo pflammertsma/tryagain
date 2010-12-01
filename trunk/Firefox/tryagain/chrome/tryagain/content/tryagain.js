@@ -9,6 +9,8 @@ var TryAgain = {
     downStatus: [],
     httpRequest: false,
     xulButtons: 0,
+    remoteIcons: false,
+    timer: false,
     customStyle: false,
     checkConflicts: false,
     downCheckServers: {
@@ -527,7 +529,11 @@ var TryAgain = {
         var a = doc.createElement("a");
         a.setAttribute("id", "errorCache_" + id);
         var img = doc.createElement("img");
-        img.src = srv[2];
+        if (TryAgain.remoteIcons) {
+            img.src = srv[2];
+        } else {
+            img.src = "chrome://tryagain/skin/icons/" + srv[0] + ".png";
+        }
         a.appendChild(img);
         var span = doc.createElement("span");
         span.innerHTML = TryAgain.getFormattedString("text.cache_" + srv[0], []);
@@ -787,12 +793,13 @@ var TryAgain = {
                     if (cache) cache.setAttribute('href', TryAgain.urlify(srv[1], tab_uri));
                 }
 
-                var timer1;
-                try {
-                    timer1 = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
-                } catch (e) {
-                    TryAgain.error(e);
-                    return;
+                if (!TryAgain.timer) {
+                    try {
+                        TryAgain.timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+                    } catch (e) {
+                        TryAgain.error(e);
+                        return;
+                    }
                 }
                 var event1 = {
                     notify: function(timer) {
@@ -805,7 +812,22 @@ var TryAgain = {
                         }
                     }
                 }
-                timer1.initWithCallback(event1, 1000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+                var event1 = {
+                    notify: function(timer) {
+                        try {
+                            var errorIncrement = doc.getElementById("errorIncrement")
+                            if (errorIncrement) {
+                                errorIncrement.click();
+                            } else {
+                                TryAgain.error("missing button: errorIncrement");
+                            }
+                        } catch (e) {
+                            TryAgain.error(e);
+                            timer.cancel();
+                        }
+                    }
+                }
+                TryAgain.timer.initWithCallback(event1, 1000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
 
                 if (TryAgain_prefs.getPreference("useauditing")==1) {
                     var timers = [];
@@ -864,6 +886,7 @@ var TryAgain = {
             try {
                 // A new webpage is loaded after the netError.xhtml page, so reset the counter to zero:
                 tab = TryAgain.getTabFromPageloadEvent(doc);
+
                 if (tab!==false) {
                     tab.setAttribute("tryagain_rep", "0");
                 }

@@ -38,7 +38,7 @@ html.tryagain {
 }
 html.tryagain #errorPageContainer {
   margin-top: 2em;
-  border: 1px solid black;
+  border: 2px solid black;
   -moz-border-radius: 7px 7px 7px 7px;
   background: url("chrome://tryagain/skin/bg_body70.png") repeat;
 }
@@ -86,7 +86,7 @@ html.tryagain #errorTitle.top {
   margin: 2em auto 0 auto;
   max-width: 52em;
   padding: 2em 36px 2em 36px;
-  border: 1px solid black;
+  border: 2px solid black;
   border-bottom: none;
 }
 html.tryagain #errorTitle * {
@@ -104,3 +104,4 @@ html.tryagain #errorLongContent {
   padding-top: 2em;
 }
 html.tryagain {}
+
