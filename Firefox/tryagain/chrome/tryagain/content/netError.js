@@ -46,16 +46,20 @@ function autoRetryThis() {
     
     if (retrying || typeof p_timeout == 'undefined') return;
     
+    var lbl3 = document.getElementById("errorAutoRetry3");
     if (auto_retry != RETRY_NORMAL) {
-        if (auto_retry == RETRY_CANCEL && text_cancelled) {
+        if (auto_retry == RETRY_CANCEL && text_cancelled && lbl3) {
             // User has pressed the cancel button
-            document.getElementById("errorAutoRetry3").innerHTML = text_cancelled;
+            lbl3.innerHTML = text_cancelled;
         }
         return;
     }
     if (p_timeout<0) {
         // Maximum number of retries reached
-        document.getElementById("errorStopRetry").disabled=true;
+        var btn = document.getElementById("errorStopRetry");
+        if (btn) {
+            btn.disabled=true;
+        }
         window.stop();
         return;
     }
@@ -72,11 +76,16 @@ function autoRetryThis() {
             countdown += " "+count+"..";
         }
     }
-    document.getElementById("errorAutoRetry2").innerHTML = countdown;
-    if (count == 0){
+    var lbl2 = document.getElementById("errorAutoRetry2");
+    if (lbl2) {
+        lbl2.innerHTML = countdown;
+    }
+    if (count == 0) {
         // Done counting down; reload.
         retrying = true;
-        document.getElementById("errorAutoRetry3").innerHTML = text_tryagain;
+        if (lbl3) {
+            lbl3.innerHTML = text_tryagain;
+        }
         retryThis(null);
     }
 }
