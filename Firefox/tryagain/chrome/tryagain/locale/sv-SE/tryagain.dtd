@@ -1,0 +1,16 @@
+<!ENTITY name.tryagain "TryAgain">
+<!ENTITY menu.tryagain "Aktivera TryAgain">
+<!ENTITY options.title "Inställningar för TryAgain">
+<!ENTITY options.general "Allmänt">
+<!ENTITY options.trying_again "Försöka igen">
+<!ENTITY options.other "Övrigt">
+<!ENTITY options.support_site "Ge feedback / rapportera en bugg">
+<!ENTITY options.translation_site "Bidra med en översättning">
+<!ENTITY options.facebook_page "TryAgain på Facebook">
+<!ENTITY options.enable "Aktivera TryAgain">
+<!ENTITY options.timeout "Tidsgräns:">
+<!ENTITY options.seconds "sekunder">
+<!ENTITY options.repeat "Max. antal försök:">
+<!ENTITY options.showmenu "Visa objekt i Verktyg-menyn">
+<!ENTITY options.hidetips "Göm diagnostiseringstips för nätverk">
+<!ENTITY options.useauditing "Kontrollera webbplatsens status automatiskt">

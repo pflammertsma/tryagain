@@ -1,15 +1,12 @@
 <!ENTITY name.tryagain "TryAgain">
 <!ENTITY menu.tryagain "Activer TryAgain">
-
-<!ENTITY options.title "Options de l'extension TryAgain">
-<!ENTITY options.general "General">
-<!ENTITY options.trying_again "Trying again">
-<!ENTITY options.other "Other">
-
-<!ENTITY options.support_site "Give feedback / report a bug">
-<!ENTITY options.translation_site "Contribute by translating">
-<!ENTITY options.facebook_page "Facebook fan page">
-
+<!ENTITY options.title "Options de TryAgain">
+<!ENTITY options.general "Général">
+<!ENTITY options.trying_again "Nouvel essai">
+<!ENTITY options.other "Autre">
+<!ENTITY options.support_site "Envoyer un avis / signaler un plantage">
+<!ENTITY options.translation_site "Traducteurs">
+<!ENTITY options.facebook_page "Page des fans Facebook">
 <!ENTITY options.enable "Activer TryAgain">
 <!ENTITY options.timeout "Temps restant :">
 <!ENTITY options.seconds "secondes">

@@ -1,0 +1,16 @@
+<!ENTITY name.tryagain "TryAgain">
+<!ENTITY menu.tryagain "Włącz TryAgain">
+<!ENTITY options.title "Ustawienia TryAgain">
+<!ENTITY options.general "Główne">
+<!ENTITY options.trying_again "Próbuj ponownie">
+<!ENTITY options.other "Inne">
+<!ENTITY options.support_site "Wyraź opinię/zgłoś błąd">
+<!ENTITY options.translation_site "Wspomóż tłumacząc">
+<!ENTITY options.facebook_page "Zostań fanem na Facebooku">
+<!ENTITY options.enable "Włącz TryAgain">
+<!ENTITY options.timeout "Próbuj ponownie po:">
+<!ENTITY options.seconds "sekundach">
+<!ENTITY options.repeat "Maksymalna liczba prób:">
+<!ENTITY options.showmenu "ąPokaż wpis &quot;Włącz TryAgain&quot; w menu Narzędzia">
+<!ENTITY options.hidetips "Ukryj wskazówki przy niezaładowaniu strony">
+<!ENTITY options.useauditing "Automatycznie sprawdź status strony">
