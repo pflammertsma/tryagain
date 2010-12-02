@@ -3,7 +3,7 @@
   line-height: 16px;
 }
 #status_caches > div {
-  margin-left: 6em;
+  margin: 0 0 1px 6em;
   height: 16px;
 }
 #status_caches > div.extra {
