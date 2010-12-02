@@ -1,18 +1,15 @@
 <!ENTITY name.tryagain "TryAgain">
 <!ENTITY menu.tryagain "TryAgain aktivieren">
-
 <!ENTITY options.title "TryAgain Einstellungen">
-<!ENTITY options.general "General">
-<!ENTITY options.trying_again "Trying again">
-<!ENTITY options.other "Other">
-
-<!ENTITY options.support_site "Give feedback / report a bug">
-<!ENTITY options.translation_site "Contribute by translating">
-<!ENTITY options.facebook_page "Facebook fan page">
-
+<!ENTITY options.general "Allgemein">
+<!ENTITY options.trying_again "Nochmal versuchen">
+<!ENTITY options.other "Sonstige">
+<!ENTITY options.support_site "Feedback senden / Fehler melden">
+<!ENTITY options.translation_site "Durch Übersetzen unterstützen">
+<!ENTITY options.facebook_page "Fan-Seite auf Facebook">
 <!ENTITY options.enable "TryAgain aktivieren">
 <!ENTITY options.timeout "Timeout nach:">
-<!ENTITY options.seconds "Sekunden">
+<!ENTITY options.seconds "Sekunde(n)">
 <!ENTITY options.repeat "Maximale Versuche:">
 <!ENTITY options.showmenu "Eintrag im &quot;Extras&quot;-Menü zeigen">
 <!ENTITY options.hidetips "Netzwerkdiagnosetipps verstecken">

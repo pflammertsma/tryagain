@@ -1,16 +1,13 @@
 <!ENTITY name.tryagain "TryAgain">
 <!ENTITY menu.tryagain "启用 TryAgain">
-
 <!ENTITY options.title "TryAgain 选项">
-<!ENTITY options.general "General">
+<!ENTITY options.general "常规">
 <!ENTITY options.trying_again "Trying again">
-<!ENTITY options.other "Other">
-
-<!ENTITY options.support_site "Give feedback / report a bug">
-<!ENTITY options.translation_site "Contribute by translating">
-<!ENTITY options.facebook_page "Facebook fan page">
-
-<!ENTITY options.enable 启用 TryAgain">
+<!ENTITY options.other "其他">
+<!ENTITY options.support_site "意见反馈 / 报告 bug">
+<!ENTITY options.translation_site "帮助翻译">
+<!ENTITY options.facebook_page "Facebook fan 页面">
+<!ENTITY options.enable "启用 TryAgain">
 <!ENTITY options.timeout "超时：">
 <!ENTITY options.seconds "秒">
 <!ENTITY options.repeat "最大重试次数">

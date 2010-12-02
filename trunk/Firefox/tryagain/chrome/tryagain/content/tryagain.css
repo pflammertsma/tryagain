@@ -31,6 +31,18 @@
   padding: 0 3px 0 0;
   vertical-align: bottom;
 }
+#errorAutoRetry1 > span {
+  margin-left: 1em;
+}
+#errorAutoRetry2 {
+  height: 12px;
+  font-size: 80%;
+  opacity: 0.6;
+}
+#errorAutoRetry3 {
+  color: #b00000;
+  font-weight: bold;
+}
 
 html.tryagain {
   background-color: black;
