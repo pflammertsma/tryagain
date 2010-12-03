@@ -1,16 +1,35 @@
+<!-- Name of the add-on (please leave the add-on name "TryAgain") -->
 <!ENTITY name.tryagain "TryAgain">
+<!-- Name of the option that appears in the tools menu that, when checked, enables TryAgain (please leave the add-on name "TryAgain") -->
 <!ENTITY menu.tryagain "TryAgain aktivieren">
-<!ENTITY options.title "TryAgain Einstellungen">
-<!ENTITY options.general "Allgemein">
-<!ENTITY options.trying_again "Nochmal versuchen">
-<!ENTITY options.other "Sonstige">
+<!-- Name of the link to the support site -->
 <!ENTITY options.support_site "Feedback senden / Fehler melden">
+<!-- Name of the link to the Babelzilla site -->
 <!ENTITY options.translation_site "Durch Übersetzen unterstützen">
+<!-- Name of the link to the Facebook fan page -->
 <!ENTITY options.facebook_page "Fan-Seite auf Facebook">
+<!-- Title of TryAgain's options screen (please leave the add-on name "TryAgain") -->
+<!ENTITY options.title "TryAgain Einstellungen">
+<!-- Name of the frame for general settings -->
+<!ENTITY options.general "Allgemein">
+<!-- Name of the frame for retry settings -->
+<!ENTITY options.trying_again "Nochmal versuchen">
+<!-- Name of the frame for miscellaneous settings -->
+<!ENTITY options.other "Sonstige">
+<!-- Name of the frame for style settings -->
 <!ENTITY options.enable "TryAgain aktivieren">
+<!-- Name of the option that appears in the tools menu that, when checked, enables TryAgain (please leave the add-on name "TryAgain") -->
+<!-- Text that appears before a field where the number of seconds before retrying is specified; "Timeout: [10 seconds] -->
 <!ENTITY options.timeout "Timeout nach:">
+<!-- Text that appears after a field where the number of seconds before retrying is specified; "[Timeout: 10] seconds" -->
 <!ENTITY options.seconds "Sekunde(n)">
+<!-- Text that appears before a field where the maximum number of retries is specified -->
 <!ENTITY options.repeat "Maximale Versuche:">
+<!-- Name of the checkbox to toggle displaying an entry in the Tools menu -->
 <!ENTITY options.showmenu "Eintrag im &quot;Extras&quot;-Menü zeigen">
+<!-- Name of the checkbox to toggle hiding diagnostic tips on the error page -->
 <!ENTITY options.hidetips "Netzwerkdiagnosetipps verstecken">
+<!-- Name of the checkbox to toggle automatically checking website status -->
 <!ENTITY options.useauditing "Status der Webseite automatisch überprüfen">
+<!-- Name of the checkbox to toggle using a custom error page style -->
+<!ENTITY options.custom_style "Use custom style for error page">

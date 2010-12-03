@@ -1,16 +1,35 @@
+<!-- Name of the add-on (please leave the add-on name "TryAgain") -->
 <!ENTITY name.tryagain "TryAgain">
+<!-- Name of the option that appears in the tools menu that, when checked, enables TryAgain (please leave the add-on name "TryAgain") -->
 <!ENTITY menu.tryagain "Омогући TryAgain">
-<!ENTITY options.title "TryAgain опције">
-<!ENTITY options.general "Опште">
-<!ENTITY options.trying_again "Поновни покушај">
-<!ENTITY options.other "Остало">
+<!-- Name of the link to the support site -->
 <!ENTITY options.support_site "Слање повратне информације или пријављивање грешака">
+<!-- Name of the link to the Babelzilla site -->
 <!ENTITY options.translation_site "Помозите са превођењем">
+<!-- Name of the link to the Facebook fan page -->
 <!ENTITY options.facebook_page "Страница обожавалаца на Фејсбуку">
+<!-- Title of TryAgain's options screen (please leave the add-on name "TryAgain") -->
+<!ENTITY options.title "TryAgain опције">
+<!-- Name of the frame for general settings -->
+<!ENTITY options.general "Опште">
+<!-- Name of the frame for retry settings -->
+<!ENTITY options.trying_again "Поновни покушај">
+<!-- Name of the frame for miscellaneous settings -->
+<!ENTITY options.other "Остало">
+<!-- Name of the frame for style settings -->
 <!ENTITY options.enable "Омогући TryAgain">
+<!-- Name of the option that appears in the tools menu that, when checked, enables TryAgain (please leave the add-on name "TryAgain") -->
+<!-- Text that appears before a field where the number of seconds before retrying is specified; "Timeout: [10 seconds] -->
 <!ENTITY options.timeout "Време за истицање:">
+<!-- Text that appears after a field where the number of seconds before retrying is specified; "[Timeout: 10] seconds" -->
 <!ENTITY options.seconds "секунди(е)">
+<!-- Text that appears before a field where the maximum number of retries is specified -->
 <!ENTITY options.repeat "Највише покушаја:">
+<!-- Name of the checkbox to toggle displaying an entry in the Tools menu -->
 <!ENTITY options.showmenu "Прикажи ставку у менију „Алатке”">
+<!-- Name of the checkbox to toggle hiding diagnostic tips on the error page -->
 <!ENTITY options.hidetips "Сакриј савете за откривање грешака са мрежом">
+<!-- Name of the checkbox to toggle automatically checking website status -->
 <!ENTITY options.useauditing "Аутоматски провери стање странице">
+<!-- Name of the checkbox to toggle using a custom error page style -->
+<!ENTITY options.custom_style "Use custom style for error page">

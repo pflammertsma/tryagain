@@ -8,9 +8,9 @@ var TryAgain = {
     strbundle: 0,
     httpRequest: false,
     xulButtons: 0,
-    remoteIcons: true,
+    remoteIcons: false,
     timers: [],
-    customStyle: false,
+    customStyle: true,
     checkConflicts: true,
     hasConflict: false,
     downCheckServers: [
@@ -862,7 +862,6 @@ var TryAgain = {
                     if (repeat == 1 || repeat % 10 == 0) {
                         for (id in TryAgain.downCheckServers) {
                             var server = TryAgain.downCheckServers[id];
-                            TryAgain.debug(server);
                             var httpRequest = TryAgain.checkDownStatus(doc, tab, tab_uri, server[0], server[1], server[2], server[3], server[4]);
                             tab.setAttribute("tryagain_status_"+id, TryAgain.STATUS_POLLING);
                         }

@@ -1,16 +1,35 @@
+<!-- Name of the add-on (please leave the add-on name "TryAgain") -->
 <!ENTITY name.tryagain "TryAgain">
+<!-- Name of the option that appears in the tools menu that, when checked, enables TryAgain (please leave the add-on name "TryAgain") -->
 <!ENTITY menu.tryagain "Включить TryAgain">
-<!ENTITY options.title "Настройки TryAgain">
-<!ENTITY options.general "General">
-<!ENTITY options.trying_again "Trying again">
-<!ENTITY options.other "Other">
+<!-- Name of the link to the support site -->
 <!ENTITY options.support_site "Give feedback / report a bug">
+<!-- Name of the link to the Babelzilla site -->
 <!ENTITY options.translation_site "Contribute by translating">
+<!-- Name of the link to the Facebook fan page -->
 <!ENTITY options.facebook_page "Facebook fan page">
+<!-- Title of TryAgain's options screen (please leave the add-on name "TryAgain") -->
+<!ENTITY options.title "Настройки TryAgain">
+<!-- Name of the frame for general settings -->
+<!ENTITY options.general "General">
+<!-- Name of the frame for retry settings -->
+<!ENTITY options.trying_again "Trying again">
+<!-- Name of the frame for miscellaneous settings -->
+<!ENTITY options.other "Other">
+<!-- Name of the frame for style settings -->
 <!ENTITY options.enable "Включить TryAgain">
+<!-- Name of the option that appears in the tools menu that, when checked, enables TryAgain (please leave the add-on name "TryAgain") -->
+<!-- Text that appears before a field where the number of seconds before retrying is specified; "Timeout: [10 seconds] -->
 <!ENTITY options.timeout "Перерыв между попытками">
+<!-- Text that appears after a field where the number of seconds before retrying is specified; "[Timeout: 10] seconds" -->
 <!ENTITY options.seconds "секунд">
+<!-- Text that appears before a field where the maximum number of retries is specified -->
 <!ENTITY options.repeat "Максимальное количество попыток (0=бесконечно):">
+<!-- Name of the checkbox to toggle displaying an entry in the Tools menu -->
 <!ENTITY options.showmenu "Пункт в меню Интрументы">
+<!-- Name of the checkbox to toggle hiding diagnostic tips on the error page -->
 <!ENTITY options.hidetips "Скрыть инструменты проверки соединения">
+<!-- Name of the checkbox to toggle automatically checking website status -->
 <!ENTITY options.useauditing "Автоматически проверять статус сайта">
+<!-- Name of the checkbox to toggle using a custom error page style -->
+<!ENTITY options.custom_style "Use custom style for error page">
