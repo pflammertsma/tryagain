@@ -1,16 +1,35 @@
+<!-- Name of the add-on (please leave the add-on name "TryAgain") -->
 <!ENTITY name.tryagain "TryAgain">
+<!-- Name of the option that appears in the tools menu that, when checked, enables TryAgain (please leave the add-on name "TryAgain") -->
 <!ENTITY menu.tryagain "启用 TryAgain">
-<!ENTITY options.title "TryAgain 选项">
-<!ENTITY options.general "常规">
-<!ENTITY options.trying_again "Trying again">
-<!ENTITY options.other "其他">
+<!-- Name of the link to the support site -->
 <!ENTITY options.support_site "意见反馈 / 报告 bug">
+<!-- Name of the link to the Babelzilla site -->
 <!ENTITY options.translation_site "帮助翻译">
+<!-- Name of the link to the Facebook fan page -->
 <!ENTITY options.facebook_page "Facebook fan 页面">
+<!-- Title of TryAgain's options screen (please leave the add-on name "TryAgain") -->
+<!ENTITY options.title "TryAgain 选项">
+<!-- Name of the frame for general settings -->
+<!ENTITY options.general "常规">
+<!-- Name of the frame for retry settings -->
+<!ENTITY options.trying_again "Trying again">
+<!-- Name of the frame for miscellaneous settings -->
+<!ENTITY options.other "其他">
+<!-- Name of the frame for style settings -->
 <!ENTITY options.enable "启用 TryAgain">
+<!-- Name of the option that appears in the tools menu that, when checked, enables TryAgain (please leave the add-on name "TryAgain") -->
+<!-- Text that appears before a field where the number of seconds before retrying is specified; "Timeout: [10 seconds] -->
 <!ENTITY options.timeout "超时：">
+<!-- Text that appears after a field where the number of seconds before retrying is specified; "[Timeout: 10] seconds" -->
 <!ENTITY options.seconds "秒">
+<!-- Text that appears before a field where the maximum number of retries is specified -->
 <!ENTITY options.repeat "最大重试次数">
+<!-- Name of the checkbox to toggle displaying an entry in the Tools menu -->
 <!ENTITY options.showmenu "显示工具栏菜单项">
+<!-- Name of the checkbox to toggle hiding diagnostic tips on the error page -->
 <!ENTITY options.hidetips "隐藏网络诊断提示">
+<!-- Name of the checkbox to toggle automatically checking website status -->
 <!ENTITY options.useauditing "自动检查网站状态">
+<!-- Name of the checkbox to toggle using a custom error page style -->
+<!ENTITY options.custom_style "Use custom style for error page">
