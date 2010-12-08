@@ -60,15 +60,15 @@
     </em:targetApplication>
 
     <em:name>TryAgain</em:name>
-    <em:version>3.4.3</em:version>
+    <em:version>3.4.4</em:version>
     <em:type>2</em:type>
     <em:description>TryAgain keeps trying to load a webpage when the server cannot be reached.</em:description>
     <em:homepageURL>http://getsatisfaction.com/tryagain/products/tryagain_tryagain_for_firefox</em:homepageURL>
 
-    <em:creator>Mathijs Lagerberg</em:creator>
-    <em:developer>Paul Lammertsma</em:developer>
-    <em:contributor>Aldo Vargas</em:contributor>
+    <em:creator>Paul Lammertsma</em:creator>
+    <em:developer>Mathijs Lagerberg</em:developer>
     <em:contributor>Eric Lammertsma</em:contributor>
+    <em:translator>Aldo Vargas</em:translator>
 
     <em:optionsURL>chrome://tryagain/content/options.xul</em:optionsURL>
     <em:iconURL>chrome://tryagain/skin/icon.png</em:iconURL>

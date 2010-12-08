@@ -5,3 +5,5 @@ pref("extensions.tryagain.repeat", 5);
 pref("extensions.tryagain.showmenu", 0);
 pref("extensions.tryagain.hidetips", 0);
 pref("extensions.tryagain.useauditing", 1);
+pref("extensions.tryagain.showCaches", 1);
+pref("extensions.tryagain.customStyle", 0);
