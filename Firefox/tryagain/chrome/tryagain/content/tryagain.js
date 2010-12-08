@@ -10,7 +10,6 @@ var TryAgain = {
     xulButtons: 0,
     remoteIcons: false,
     timers: [],
-    customStyle: true,
     checkConflicts: true,
     hasConflict: false,
     downCheckServers: [
@@ -54,8 +53,8 @@ var TryAgain = {
                           "<div style=\"-moz-border-radius-bottomleft:10px; -moz-border-radius-bottomright:10px; -moz-border-radius-topleft:10px; -moz-border-radius-topright:10px;border:#F00 2px solid; padding:0 13px; margin:10px 0;\">"
                         + "<p><b>Unable to load TryAgain. Please report the error below <a href=\"http://getsatisfaction.com/tryagain/#problem\">on the support page</a>.</b></p>"
                         + "<blockquote>"
-                        + (msg ? "<p>" + escape(msg) + "</p>" : "")
-                        + (err ? "<p>" + escape(err) + "</p>" : "")
+                        + (msg ? "<p>" + TryAgain.escape(msg) + "</p>" : "")
+                        + (err ? "<p>" + TryAgain.escape(err) + "</p>" : "")
                         + (trc ? trc : "")
                         + "</blockquote>"
                         + "</div>";
@@ -72,6 +71,12 @@ var TryAgain = {
                 tryagainList.setAttribute("style", "display: none;");
             }
         }
+    },
+    escape: function(str) {
+        str = str.replace('&', '&amp;');
+        str = str.replace('<', '&lt;');
+        str = str.replace('>', '&gt;');
+        return str;
     },
 
     createButton: function(doc, parentBtn, text) {
@@ -114,7 +119,7 @@ var TryAgain = {
         }
     },  
 
-    checkConflict: function(name, id, className) {
+    checkConflict: function(name, id, fallback) {
         var ext;
         if (typeof Application != 'undefined') {
             if (Application.extensions) {
@@ -152,7 +157,7 @@ var TryAgain = {
                         TryAgain.showConflict(name, id, ext);
                     }
                 }
-            } else if (typeof className != "undefined") {
+            } else if (fallback) {
                 TryAgain.showConflict(name, null, null);
             }
         }
@@ -206,7 +211,11 @@ var TryAgain = {
 
             if (TryAgain.isActive() && TryAgain.checkConflicts) {
                 try {
-                    TryAgain.checkConflict("Fierr", "{2E481B23-66AC-313F-D6A8-A81DDDF26249}", com.RealityRipple.Fierr);
+                    var fallback = false;
+                    try {
+                        if (typeof com.RealityRipple.Fierr != "undefined") fallback = true;
+                    } catch (e) {}
+                    TryAgain.checkConflict("Fierr", "{2E481B23-66AC-313F-D6A8-A81DDDF26249}", fallback);
                     // TryAgain IS compatible with Resurrect Pages
                     // TryAgain.checkConflict("Resurrect Pages", "{0c8fbd76-bdeb-4c52-9b24-d587ce7b9dc3}");
                 } catch (e) {
@@ -505,7 +514,7 @@ var TryAgain = {
                 url = url.substr(0, url.length-1);
             }
             var downStatus = tab.getAttribute("tryagain_status_"+id);
-            if (!downStatus) return false;
+            if (!downStatus) downStatus = TryAgain.STATUS_UNKNOWN;
             if (downStatus == TryAgain.STATUS_POLLING) {
                 status.innerHTML =
                     '<a id="error_'+id+'" href="'+TryAgain.urlify(serverUrl, url)+'">' +
@@ -556,18 +565,23 @@ var TryAgain = {
         }
     },
     
-    addService: function(doc, li, srv, className) {
+    addService: function(doc, li, srv, id, tab_uri, className) {
         var div = doc.createElement("div");
         if (className) {
             div.setAttribute("class", className);
         }
         var a = doc.createElement("a");
         a.setAttribute("id", "errorCache_" + id);
+        a.setAttribute('href', TryAgain.urlify(srv[1], tab_uri));
         var img = doc.createElement("img");
-        if (TryAgain.remoteIcons) {
-            img.src = srv[2];
-        } else {
-            img.src = "chrome://tryagain/skin/icons/" + srv[0] + ".png";
+        try {
+            if (TryAgain.remoteIcons) {
+                img.src = srv[2];
+            } else {
+                img.src = "chrome://tryagain/skin/icons/" + srv[0] + ".png";
+            }
+        } catch (e) {
+            TryAgain.error(e);
         }
         a.appendChild(img);
         var span = doc.createElement("span");
@@ -593,7 +607,46 @@ var TryAgain = {
             var tab;
             try {
 
-                if (TryAgain.customStyle) {
+                var script1 = doc.getElementsByTagName("script")[0];
+                var extraHTML = "var text_cancelled = '"+TryAgain.getString("text.cancelled")+"';\n"
+                                   + "var text_tryagain = '"+TryAgain.getString("text.tryagain")+"';\n"
+                                   + "var text_tried_times = '"+TryAgain.getString("text.tried_times")+"';\n";
+    
+                var tryAgain_btn = doc.getElementById('errorTryAgain');
+                if (!tryAgain_btn) {
+                    // Support for Fierr
+                    tryAgain_btn = doc.getElementById('tryAgain');
+                }
+
+                if (!TryAgain.isActive()) {
+                    // Hide the TryAgain part:
+                    var tryagainContainer = doc.getElementById("tryagainContainer");
+                    if (!tryagainContainer) {
+                        return;
+                    }
+                    tryagainContainer.setAttribute("style", "display: none;");
+
+                    vars.innerHTML = "var p_timeout = -1; var p_repeating = true; var p_max_repeat = 0; var p_repeat = 0;\n"
+                                   + extraHTML;
+                    tryAgain_btn.disabled = false;
+                    return;
+                }
+
+                tab = TryAgain.getTabFromPageloadEvent(doc);
+                var tab_uri = false;
+                if (tab===false) {
+                    tab = TryAgain.getFrameFromPageloadEvent(doc);
+                    // Tab is now actually a FRAME or an IFRAME
+                    if (tab===false) {
+                        return;
+                    } else {
+                        tab_uri = tab.contentWindow.window.document.location.href;
+                    }
+                } else {
+                    tab_uri = tab.currentURI.asciiSpec;
+                }
+
+                if (TryAgain_prefs.getPreference("customStyle") == 1) {
                     var html = doc.getElementsByTagName("html")[0];
                     html.setAttribute("class", "tryagain");
                     html.style.backgroundImage = "url('chrome://tryagain/skin/backgrounds/aluminium.png')";
@@ -616,31 +669,6 @@ var TryAgain = {
                     title.appendChild(txt);
                 }
 
-                var script1 = doc.getElementsByTagName("script")[0];
-                var extraHTML = "var text_cancelled = '"+TryAgain.getString("text.cancelled")+"';\n"
-                                   + "var text_tryagain = '"+TryAgain.getString("text.tryagain")+"';\n"
-                                   + "var text_tried_times = '"+TryAgain.getString("text.tried_times")+"';\n";
-    
-                var tryAgain_btn = doc.getElementById('errorTryAgain');
-                if (!tryAgain_btn) {
-                    // Support for Fierr
-                    tryAgain_btn = doc.getElementById('tryAgain');
-                }
-
-                if (!TryAgain.isActive()) {
-                    // Hide the TryAgain part:
-                    var tryagainContainer = doc.getElementById("tryagainContainer");
-                    if (!tryagainContainer) {
-                        return;
-                    }
-                    tryagainContainer.setAttribute("style", "display: none;");
-                    
-                    vars.innerHTML = "var p_timeout = -1; var p_repeating = true; var p_max_repeat = 0; var p_repeat = 0;\n"
-                                   + extraHTML;
-                    tryAgain_btn.disabled = false;
-                    return;
-                }
-    
                 var script2 = doc.createElement("script");
                 script2.setAttribute("src", "chrome://tryagain/content/netError.js");
                 script1.parentNode.appendChild(script2);
@@ -686,48 +714,56 @@ var TryAgain = {
                 tryagainList.setAttribute("id", "tryagainList");
                 page.appendChild(tryagainList);
 
+                var id;
                 for (id in TryAgain.downCheckServers) {
                     var server = TryAgain.downCheckServers[id];
-                    var li = doc.createElement("li");
-                    li.setAttribute("id", "status_" + server[0]);
-                    tryagainList.appendChild(li);
+                    if (server[0]) {
+                        var li = doc.createElement("li");
+                        li.setAttribute("id", "status_" + server[0]);
+                        tryagainList.appendChild(li);
+                    } else {
+                        TryAgain.error('downCheckServers[' + id + '] is not set');
+                    }
                 }
 
-                li = doc.createElement("li");
-                li.setAttribute("id", "status_caches");
-                var span = doc.createElement("span");
-                span.innerHTML = TryAgain.getFormattedString("text.view_with", []) + ": ";
-                li.appendChild(span);
-                var moreServices;
-                for (id in TryAgain.cacheServices) {
-                    var srv = TryAgain.cacheServices[id];
-                    if (!srv[3]) {
-                        moreServices = true;
-                        continue;
-                    }
-                    TryAgain.addService(doc, li, srv, "icon");
-                }
-                if (moreServices) {
-                    var div = doc.createElement("div");
-                    div.setAttribute("class", "expand");
-                    var a = doc.createElement("a");
-                    a.innerHTML = TryAgain.getFormattedString("text.more", []);
-                    a.href = "javascript:{}";
-                    a.addEventListener('click', function() {
-                        div.parentNode.setAttribute("class", "expanded");
-                        return false;
-                    }, false);
-                    div.appendChild(a);
-                    li.appendChild(div);
+                var showCaches = TryAgain_prefs.getPreference("showCaches");
+                if (showCaches > 0) {
+                    li = doc.createElement("li");
+                    li.setAttribute("id", "status_caches");
+                    var span = doc.createElement("span");
+                    span.innerHTML = TryAgain.getFormattedString("text.view_with", []) + ": ";
+                    li.appendChild(span);
+                    var moreServices;
                     for (id in TryAgain.cacheServices) {
                         var srv = TryAgain.cacheServices[id];
-                        if (srv[3]) {
+                        if (showCaches != 2 && !srv[3]) {
+                            moreServices = true;
                             continue;
                         }
-                        TryAgain.addService(doc, li, srv, "icon extra");
+                        TryAgain.addService(doc, li, srv, id, tab_uri, "icon");
                     }
+                    if (moreServices) {
+                        var div = doc.createElement("div");
+                        div.setAttribute("class", "expand");
+                        var a = doc.createElement("a");
+                        a.innerHTML = TryAgain.getFormattedString("text.more", []);
+                        a.href = "javascript:{}";
+                        a.addEventListener('click', function() {
+                            div.parentNode.setAttribute("class", "expanded");
+                            return false;
+                        }, false);
+                        div.appendChild(a);
+                        li.appendChild(div);
+                        for (id in TryAgain.cacheServices) {
+                            var srv = TryAgain.cacheServices[id];
+                            if (srv[3]) {
+                                continue;
+                            }
+                            TryAgain.addService(doc, li, srv, id, tab_uri, "icon extra");
+                        }
+                    }
+                    tryagainList.appendChild(li);
                 }
-                tryagainList.appendChild(li);
 
                 // Use for affiliate program(s)
                 if (false) {
@@ -756,20 +792,6 @@ var TryAgain = {
                 errorAutoRetry1.appendChild(errorAutoRetry3);
 
                 tryagainContainer.appendChild(errorAutoRetry1);
-
-                tab = TryAgain.getTabFromPageloadEvent(doc);
-                var tab_uri = false;
-                if (tab===false) {
-                    tab = TryAgain.getFrameFromPageloadEvent(doc);
-                    // Tab is now actually a FRAME or an IFRAME
-                    if (tab===false) {
-                        return;
-                    } else {
-                        tab_uri = tab.contentWindow.window.document.location.href;
-                    }
-                } else {
-                    tab_uri = tab.currentURI.asciiSpec;
-                }
 
                 // Determine the desired timeout and max. repeats:
                 var timeout = TryAgain_prefs.getPreference("timeout");
@@ -819,12 +841,6 @@ var TryAgain = {
                 vars.innerHTML = "var p_timeout = "+timeout+"; var p_repeating = "+repeating+"; var p_max_repeat = "+max_repeat+"; var p_repeat = "+repeat+";\n"
                                + extraHTML;
 
-                for (id in TryAgain.cacheServices) {
-                    var srv = TryAgain.cacheServices[id];
-                    var cache = doc.getElementById("errorCache_" + id);
-                    if (cache) cache.setAttribute('href', TryAgain.urlify(srv[1], tab_uri));
-                }
-
                 var timer;
                 try {
                     timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
@@ -857,7 +873,15 @@ var TryAgain = {
                 }
                 timer.initWithCallback(event1, 100, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
 
-                if (TryAgain_prefs.getPreference("useauditing")==1) {
+                for (id in TryAgain.downCheckServers) {
+                    var server = TryAgain.downCheckServers[id];
+                    if (TryAgain_prefs.getPreference("useauditing") == 0) {
+                        tab.setAttribute("tryagain_status_" + server[0], TryAgain.STATUS_UNKNOWN);
+                    }
+                    TryAgain.updateDownStatus(doc, tab, tab_uri, server[0], server[1], false);
+                }
+                if (TryAgain_prefs.getPreference("useauditing") == 1) {
+                    TryAgain.debug(TryAgain_prefs.getPreference("useauditing"));
                     // First and every ten tries only
                     if (repeat == 1 || repeat % 10 == 0) {
                         for (id in TryAgain.downCheckServers) {
@@ -866,13 +890,6 @@ var TryAgain = {
                             tab.setAttribute("tryagain_status_"+id, TryAgain.STATUS_POLLING);
                         }
                     }
-                }
-                for (id in TryAgain.downCheckServers) {
-                    var server = TryAgain.downCheckServers[id];
-                    if (TryAgain_prefs.getPreference("useauditing")==0) {
-                        tab.setAttribute("tryagain_status_"+id, TryAgain.STATUS_UNKNOWN);
-                    }
-                    TryAgain.updateDownStatus(doc, tab, tab_uri, server[0], server[1], false);
                 }
             } catch (exception) {
                 TryAgain.trace(doc, exception, errmessage);
