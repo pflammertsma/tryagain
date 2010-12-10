@@ -88,7 +88,7 @@ var TryAgain = {
                     TryAgain.xulButtons = 2;
                 }
             } else {
-                TryAgain.debug("not set: " + btn);
+                TryAgain.error("parent not set for createButton: " + parentBtn);
             }
         }
         if (TryAgain.xulButtons == 1) {
@@ -119,7 +119,7 @@ var TryAgain = {
         }
     },  
 
-    checkConflict: function(name, id, fallback) {
+    checkConflict: function(name, id) {
         var ext;
         if (typeof Application != 'undefined') {
             if (Application.extensions) {
@@ -142,22 +142,25 @@ var TryAgain = {
             }
         } else {
             var extMgr = Cc["@mozilla.org/extensions/manager;1"].getService(Ci.nsIExtensionManager);
+            var extMgrDs;
             if (extMgr) {
                 ext = extMgr.getItemForID(id);
+                extMgrDs = extMgr.datasource;
             }
-            var extMgrDs = extMgr.datasource;
-            if (extMgrDs && ext) {
+            if (ext && ext.id) {
                 var rdfSvc = Cc["@mozilla.org/rdf/rdf-service;1"].getService(Ci.nsIRDFService);
                 if (rdfSvc) {
                     var source = rdfSvc.GetResource("urn:mozilla:item:" + ext.id);
                     var property = rdfSvc.GetResource("http://www.mozilla.org/2004/em-rdf#isDisabled");
-                    var target = rdfSvc.GetLiteral("true");
-                    var disabled = extMgrDs.HasAssertion(source, property, target, true);
-                    if (!disabled) {
-                        TryAgain.showConflict(name, id, ext);
+                    disabled = extMgrDs.GetTarget(source, property, true);
+                    if (disabled) {
+                        disabled = disabled.QueryInterface(Ci.nsIRDFLiteral);
+                        if (disabled.Value=="false") {
+                            TryAgain.showConflict(name, id, ext);
+                        }
                     }
                 }
-            } else if (fallback) {
+            } else {
                 TryAgain.showConflict(name, null, null);
             }
         }
@@ -211,11 +214,11 @@ var TryAgain = {
 
             if (TryAgain.isActive() && TryAgain.checkConflicts) {
                 try {
-                    var fallback = false;
                     try {
-                        if (typeof com.RealityRipple.Fierr != "undefined") fallback = true;
+                        if (typeof com.RealityRipple.Fierr != "undefined") {
+                            TryAgain.checkConflict("Fierr", "{2E481B23-66AC-313F-D6A8-A81DDDF26249}");
+                        }
                     } catch (e) {}
-                    TryAgain.checkConflict("Fierr", "{2E481B23-66AC-313F-D6A8-A81DDDF26249}", fallback);
                     // TryAgain IS compatible with Resurrect Pages
                     // TryAgain.checkConflict("Resurrect Pages", "{0c8fbd76-bdeb-4c52-9b24-d587ce7b9dc3}");
                 } catch (e) {
@@ -223,6 +226,17 @@ var TryAgain = {
                 }
             }
             
+            var menu = document.getElementById("TryAgainMenuItem");
+            if (menu) {
+                // Show or hide the menu item:
+                if (TryAgain_prefs.getPreference("showmenu") == 1) {
+                    menu.setAttribute("style", "");
+                    menu.hidden = false;
+                }
+                var enabled = TryAgain_prefs.getPreference("enabled");
+                menu.setAttribute('checked', enabled == 1);
+            }
+
             if (TryAgain.hasConflict) return;
 
             // Load string resource:
@@ -248,16 +262,6 @@ var TryAgain = {
             var stop_key = document.getElementById("key_stop");
             stop_key.addEventListener("command", TryAgain.stop, true);
 
-            var menu = document.getElementById("TryAgainMenuItem");
-            if (menu) {
-                // Show or hide the menu item:
-                if (TryAgain_prefs.getPreference("showmenu") == 1) {
-                    menu.setAttribute("style", "");
-                    menu.hidden = false;
-                }
-                var enabled = TryAgain_prefs.getPreference("enabled");
-                menu.setAttribute('checked', enabled == 1);
-            }
         } catch (e) {
             TryAgain.trace(document, e);
         }
@@ -281,6 +285,9 @@ var TryAgain = {
     enable: function(menu) {
         if (menu) menu.setAttribute('checked', true);
         TryAgain_prefs.savePreference("enabled", 1);
+        if (TryAgain.hasConflict) {
+            TryAgain.promptRestart();
+        }
     },
 
     disable: function(menu) {
@@ -506,7 +513,7 @@ var TryAgain = {
         try {
             var status = doc.getElementById('status_' + id);
             if (!status) {
-                TryAgain.debug("Required page element missing: status_" + id);
+                // The page might have been navigated and the element may no longer exist
                 return true;
             }
             while (url.substr(-1) === "&") {
@@ -538,8 +545,8 @@ var TryAgain = {
                 if (matches != null && matches.length == 2) {
                     url = matches[1];
                 }
-                var errorLongDesc = doc.getElementById('errorShortDescText');
-                errorLongDesc.innerHTML = TryAgain.getFormattedString("text.error_site_down", [url]);
+                var errorShortDescText = doc.getElementById('errorShortDescText');
+                errorShortDescText.innerHTML = TryAgain.getFormattedString("text.error_site_down", [url]);
             } else {
                 // The website returned an unknown title
                 status.innerHTML =
@@ -819,7 +826,7 @@ var TryAgain = {
                     warningContent.innerHTML = "Error...";
                 }
 
-                if (TryAgain_prefs.getPreference("hidetips")==1) {
+                if (TryAgain_prefs.getPreference("hidetips") == 1) {
                     var errorLongDesc = doc.getElementById("errorLongDesc");
                     if (errorLongDesc) errorLongDesc.setAttribute("style", "display: none;");
                 }
@@ -881,9 +888,9 @@ var TryAgain = {
                     TryAgain.updateDownStatus(doc, tab, tab_uri, server[0], server[1], false);
                 }
                 if (TryAgain_prefs.getPreference("useauditing") == 1) {
-                    TryAgain.debug(TryAgain_prefs.getPreference("useauditing"));
-                    // First and every ten tries only
-                    if (repeat == 1 || repeat % 10 == 0) {
+                    var d = new Date();
+                    if (!tab.hasAttribute("tryagain_audit_check") || tab.getAttribute("tryagain_audit_check") < d.getTime() - TryAgain_prefs.getPreference("auditingTimeout") * 1000) {
+                        tab.setAttribute("tryagain_audit_check", d.getTime());
                         for (id in TryAgain.downCheckServers) {
                             var server = TryAgain.downCheckServers[id];
                             var httpRequest = TryAgain.checkDownStatus(doc, tab, tab_uri, server[0], server[1], server[2], server[3], server[4]);
