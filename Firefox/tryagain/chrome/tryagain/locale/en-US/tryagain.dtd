@@ -19,7 +19,7 @@
 <!-- Name of the frame for miscellaneous settings -->
 <!ENTITY options.other "Other">
 <!-- Name of the frame for style settings -->
-<!ENTITY options.enable "Style">
+<!ENTITY options.style "Style">
 
 <!-- Name of the option that appears in the tools menu that, when checked, enables TryAgain (please leave the add-on name "TryAgain") -->
 <!ENTITY options.enable "Enable TryAgain">
