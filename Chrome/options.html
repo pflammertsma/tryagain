@@ -1,0 +1,136 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="popup.css" />
+    <title>TryAgain Options</title>
+    <script type="text/javascript">
+    var t1, t2;
+    var height=0, opacity=0;
+
+    // Saves options to localStorage.
+    function save() {
+      var timeout = document.getElementById("timeout");
+      var hasMax = document.getElementById("hasMax");
+      var maxTries = document.getElementById("maxTries");
+
+      var changed = false;
+      var bad = false;
+      if (localStorage["timeout"] != timeout.value) {
+        if (isNaN(parseInt(timeout.value)))
+          bad = true;
+        else
+          localStorage["timeout"] = timeout.value;
+        changed = true;
+      }
+      var hasTriesVal = (hasMax.checked ? "true" : "false");
+      if (localStorage["hasMax"] != hasTriesVal) {
+        localStorage["hasMax"] = hasTriesVal;
+        changed = true;
+      }
+      if (localStorage["maxTries"] != maxTries.value) {
+        if (isNaN(parseInt(maxTries.value)))
+          bad = true;
+        else
+          localStorage["maxTries"] = maxTries.value;
+        changed = true;
+      }
+      
+      if (changed) {
+        // Update status to let user know options were saved.
+        var status = document.getElementById("status");
+        var text = document.getElementById("status-text");
+        if (!bad) {
+          status.className = "good";
+          text.innerHTML = "Options saved!";
+        } else {
+          status.className = "bad";
+          text.innerHTML = "Please specify a value.";
+        }
+        status.style.display = "block";
+        if (t1) {
+          clearTimeout(t1);
+        }
+        expand();
+        fadeIn();
+        if (!bad) {
+          t1 = setTimeout(function() {
+            fadeOut();
+          }, 1000);
+        }
+      }
+    }
+
+    // Restores select box state to saved value from localStorage.
+    function restore() {
+      if (localStorage["timeout"]) {
+        var timeout = document.getElementById("timeout");
+        timeout.value = localStorage["timeout"];
+      }
+      if (localStorage["hasMax"]) {
+        var hasMax = document.getElementById("hasMax");
+        hasMax.checked = (localStorage["hasMax"] == "true");
+      }
+      if (localStorage["maxTries"]) {
+        var maxTries = document.getElementById("maxTries");
+        maxTries.value = localStorage["maxTries"];
+      }
+    }
+
+    function expand() {
+      setTimeout(function() {
+        var status = document.getElementById("status");
+        if (status.style.height < 20) {
+          height += 4;
+          expand();
+        } else {
+          height = 20;
+        }
+        status.style.height = height+"px";
+      }, 20);
+    }
+
+    function fadeIn() {
+      if (t2) {
+        clearTimeout(t2);
+      }
+      t2 = setTimeout(function() {
+        var status = document.getElementById("status");
+        if (status.style.opacity < 100) {
+          opacity += 10;
+          status.style.opacity = opacity/100;
+          fadeIn();
+        }
+      }, 20);
+    }
+
+    function fadeOut() {
+      if (t2) {
+        clearTimeout(t2);
+      }
+      t2 = setTimeout(function() {
+        var status = document.getElementById("status");
+        if (status.style.opacity > 0) {
+          opacity -= 10;
+          status.style.opacity = opacity/100;
+          fadeOut();
+        } else {
+          status.style.display = "none";
+        }
+      }, 20);
+    }
+    </script>
+  </head>
+  <body onload="restore()" id="body">
+    <div id="content">
+      <h1>TryAgain Options</h1>
+      <div>
+        <label for="timeout">Timeout:</label>
+        <input type="text" id="timeout" value="5" onblur="save()" onkeyup="save()" />
+      </div>
+      <div>
+        <input type="checkbox" id="hasMax" onclick="save()" /><label for="hasMax" class="checkbox">Maximum tries:</label>
+        <input type="text" id="maxTries" value="5" onblur="save()" onkeyup="save()" />
+      </div>
+      <div id="status"><div id="status-text"></div></div>
+    </div>
+  </body>
+</html>

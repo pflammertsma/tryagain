@@ -1,0 +1,52 @@
+body {
+  font-family: "Arial", sans-serif;
+  width: 150px;
+  font-size: 12px;
+}
+h1 {
+  font-size: 12px;
+}
+div {
+  white-space: nowrap;
+}
+input[type=checkbox] {
+  width: 20px;
+  float: left;
+  margin: 6px 0 0 0;
+}
+label {
+  width: 115px;
+  display: block;
+  float: left;
+  margin: 5px 0 0 0;
+}
+label.checkbox {
+  width: 95px;
+}
+label, input[type=checkbox] {
+  line-height: 14px;
+  vertical-align: middle;
+}
+input[type=text] {
+  width: 35px;
+  vertical-align: middle;
+}
+#status {
+  margin: 0.5em 0 0 0;
+  font-size: 10px;
+  background: #a0ffa0;
+  display: none;
+  height: 0px;
+  overflow: hidden;
+  text-align: center;
+  opacity: 0;
+}
+#status.good {
+  background: #a0ffa0;
+}
+#status.bad {
+  background: #ffa0a0;
+}
+#status div {
+  margin: 3px;
+}
