@@ -1,8 +1,7 @@
 <html>
   <head>
-    <script src="jquery.js"></script>
     <script>
-    
+
       var retry = {};
       var url = {};
 
@@ -10,24 +9,9 @@
         function(request, sender, sendResponse) {
           var tabId = sender.tab.id;
           retry[tabId] = request.retry;
-          // updateTimer();
-          // sendResponse({url: sender.tab.url});
-          if (request.attempt == 1) {
-            setTimeout(
-              function() {
-                updateTimer();
-              }, 1000
-            );
-          }
         }
       );
-
-      function updateTimer() {
-        if (false) {
-          chrome.tabs.update(tabId, {url: tabUrl});
-        }
-      }
-
+      
       chrome.tabs.onUpdated.addListener(
         function(tabId, changeInfo, tab) {
           if (tab.status == "loading" && tab.url.substr(0, 6) !== "chrome") {
@@ -47,7 +31,14 @@
             url2 = url2.substr(pos1, pos2 - pos1);
             var extPath = chrome.extension.getURL('');
             chrome.tabs.executeScript(tabId,
-              {code: "var retryCount = " + curRetry + "; var extPath = \"" + extPath + "\"; var url = \"" + tab.url + "\"; var domain = \"" + url2 + "\";"}
+              {code: "var retryCount = " + curRetry + 
+                     "; var extPath = \"" + extPath + 
+                     "\"; var url = \"" + tab.url + 
+                     "\"; var domain = \"" + url2 + 
+                     "\"; var timeout = " + localStorage["timeout"] +
+                     "; var maxTries = " + 
+                     (localStorage["hasMax"] == "true" ? localStorage["maxTries"] : 0) +
+                     ";"}
             );
             chrome.tabs.executeScript(tabId,
               {file: "tryagain_content_script.js"}

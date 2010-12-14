@@ -1,0 +1,156 @@
+/****** Chrome error page style 1 ******/
+html {
+  background: #e6e6e6;
+  font: .75em/1.5 arial, sans-serif;
+}
+body {
+  margin: 0;
+}
+#content {
+  background: #fff;
+  border: 2px solid #ccc;
+  width: auto;margin-top: 4.332em;
+  padding: 1.083em 2em 3em;
+}
+#content > div {
+  margin: 0 auto;
+  width: 98%;
+  max-width: 900px;
+}
+h1 {
+  font-size: 1.5em;
+  margin: 1.083em 0 0;
+  color: #333;
+}
+h1 img {
+  float: right;
+  margin: -6px 0 0 40px;
+  border: 0;
+}
+#content .emph {
+  font-size: 1.5em;
+  margin: .5em 0 0;
+}
+.ldred {
+  color: #c00 }
+#content p {
+  font-size: 1.083em;
+  margin: -0.2em 0 0;
+}
+h2 {
+  font-size: 1.083em;
+  margin: 1.083em 0 0;
+}
+ul {
+  font-size: 1.083em;
+  line-height: 1.37em;
+  margin: 0 0 0 1.5em;padding: 0;
+}
+.snippet {
+  color: #77C;
+}
+form {
+  text-align: center;
+}
+input {
+  font-family: arial, sans-serif;
+  font-size: 1em;
+}
+label {
+  display: block;
+  padding: 0 0 .8em;
+  text-align: left;
+}
+#search {
+  width: 250px;
+}
+#about {
+  text-align: center;
+  margin: 1.8em 0 0;
+}
+#about p {
+  margin: 0;
+}
+
+/****** Chrome error page style 2 ******/
+#errorSummary, #suggestions, #search {
+  margin-bottom: 2.5em;
+}
+#zipInfo {
+  padding-left: 16px;
+  overflow: hidden;
+  -webkit-transition: height .1s ease-out;
+}
+#plus {
+  border: 0;
+  cursor: pointer;
+  vertical-align: baseline;
+}
+#details {
+  background-color: #e0e0e0;
+  padding: 1em;
+}
+#errorDetails.hide-details #plus {
+  display: inline;
+}
+#errorDetails.show-details #plus {
+  display: none;
+}
+#errorDetails.hide-details #minus {
+  display: none;
+}
+#errorDetails.show-details #minus {
+  display: inline;
+}
+#errorDetails.hide-details #zipInfo {
+  height: 0 !important;
+}
+
+
+/****** TryAgain style ******/
+#content {
+  margin: 1em auto !important;
+  width: 500px !important;
+  border-radius: 10px;
+  padding: 2em !important;
+}
+#content h1 {
+  margin: 0 0 0.5em 0;
+  border-bottom: 1px solid #CCC;
+}
+#content .small {
+  font-size: 80%;
+}
+#content .pad {
+  margin-bottom: 0.5em;
+}
+#content .failed {
+  color: #ff0000;
+  font-weight: bold;
+}
+#content hr {
+  border: none;
+  border-bottom: 1px solid #CCC;
+  margin: 0.7em 0;
+}
+#content label {
+  float: left;
+  padding-top: 4px;
+}
+#content > div, #content label {
+  width: auto;
+  margin: auto auto auto 5px;
+}
+#content #action {
+  color: #B00000;
+  font-weight: bold;
+}
+#content #buttons {
+  margin: 0.5em auto auto 0;
+}
+#zipInfo p {
+  display: none;
+}
+#details {
+  border-radius: 3px;
+}

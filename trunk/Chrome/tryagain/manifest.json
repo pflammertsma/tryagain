@@ -1,6 +1,6 @@
 {
   "name": "TryAgain",
-  "version": "0.1",
+  "version": "1.0",
   "description": "TryAgain keeps trying to load a webpage when the server cannot be reached.",
   "icons": {
     "32": "icon.png"
@@ -10,7 +10,7 @@
     {
       "all_frames": false,
       "matches": [ "<all_urls>" ],
-      "js": ["jquery.js", "tryagain_content_script.js"],
+      "js": ["tryagain_content_script.js"],
       "run_at": "document_start"
     }
   ],
