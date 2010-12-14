@@ -1,12 +1,36 @@
-const RETRY_CANCEL = 0;
-const RETRY_NORMAL = 1;
-const RETRY_OTHER  = 2;
-const RETRY_NONE   = 3;
+try {
+  const RETRY_CANCEL = 0;
+  const RETRY_NORMAL = 1;
+  const RETRY_OTHER  = 2;
+  const RETRY_NONE   = 3;
 
-var auto_retry      = RETRY_NORMAL;
-var seconds         = 3;
+  var auto_retry      = RETRY_NORMAL;
+  var seconds         = 3;
 
-document.onkeydown = keyPress;
+  document.onkeydown = keyPress;
+
+  var errorTimeout = document.getElementById('errorTimeout');
+  if (errorTimeout) {
+    var head = document.getElementsByTagName('head')[0];
+    var errorMessage = document.getElementById('errorMessage');
+    for (i in head.childNodes) {
+      switch (head.childNodes[i].nodeName) {
+        case "TITLE":
+          if (errorMessage) {
+            head.childNodes[i].innerHTML = errorMessage.value;
+          }
+          break;
+        case "STYLE":
+          head.removeChild(head.childNodes[i]);
+          break;
+      }
+    }
+    seconds = errorTimeout.value;
+    setTimeout("autoRetryThis()", 100);
+  } else {
+    document.getElementById("errorStopRetry").disabled = false;
+  }
+} catch (e) {}
 
 function keyPress(e) {
   if (e.keyCode == 27) {
@@ -66,8 +90,6 @@ function stopRetry() {
     auto_retry = RETRY_CANCEL;
   }
   autoRetryThis();
-  var errorStopRetry = this.document.getElementById('errorStopRetry');
+  var errorStopRetry = document.getElementById('errorStopRetry');
   errorStopRetry.setAttribute("disabled", "disabled");
 }
-
-setTimeout("autoRetryThis()", 100);

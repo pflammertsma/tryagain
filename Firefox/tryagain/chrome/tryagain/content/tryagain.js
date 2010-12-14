@@ -25,6 +25,18 @@ var TryAgain = {
             [ "gigablast", "http://www.gigablast.com/index.php?q=url:%url_escaped%", "http://www.gigablast.com/favicon.ico", false ],
             [ "webcite", "http://webcitation.org/query.php?url=%url_escaped%", "http://webcitation.org/favicon.ico", false ],
         ],
+    sounds: [
+            [ "3 beeps", "25881.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25881" ] ]
+            [ "2 blips", "26777.mp3", [ "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ]
+            [ "Beep & blip", "25885.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ]
+            [ "Buzz & blip", "9299.mp3", [ "drogue", "http://www.freesound.org/samplesViewSingle.php?id=7968", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ]
+            [ "Computer keyboard", "7968.mp3", [ "cfork", "http://www.freesound.org/samplesViewSingle.php?id=7968" ] ]
+            [ "Crystal glass", "35631.mp3", [ "reinsamba", "http://www.freesound.org/samplesViewSingle.php?id=35631" ] ]
+            [ "Electromechanical thunk", "35110.mp3", [ "digifishmusic", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=35110" ] ]
+            [ "Kick", "5540.mp3", [ "license", "http://www.freesound.org/samplesViewSingle.php?id=5540" ] ]
+            [ "Glockenspiel", "26875.mp3", [ "cfork", "http://www.freesound.org/samplesViewSingle.php?id=26875" ] ]
+            [ "Tongue click", "34208.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=34208" ] ]
+        ],
     debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
     trace: function(doc, err, msg) {
