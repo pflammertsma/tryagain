@@ -101,29 +101,6 @@ function stopRetry() {
     autoRetryThis();
 }
 
-function gotoGoogleCache() {
-    window.stop();
-    auto_retry = RETRY_OTHER;
-    //location.replace("http://72.14.209.104/search?q=cache:" + document.location);
-    location.href = "http://72.14.209.104/search?q=cache:" + document.location;
-    autoRetryThis();
-}
-
-function gotoWayBackArchive() {
-    window.stop();
-    auto_retry = RETRY_OTHER;
-    //location.replace("http://web.archive.org/web/*/" + document.location);
-    location.href = "http://web.archive.org/web/*/" + document.location;
-    autoRetryThis();
-}
-
-function gotoDownForEveryoneOrJustMe() {
-    window.stop();
-    auto_retry = RETRY_CANCEL;
-    location.href = "http://downforeveryoneorjustme.com/" + document.location;
-    autoRetryThis();
-}
-
 function getErrorCode() {
     var url = document.documentURI;
     var error = url.search(/e\=/);
