@@ -98,6 +98,7 @@ function stopRetry() {
         btn.disabled = false;
     }
     document.getElementById("errorStopRetry").disabled = true;
+    document.getElementById("errorIncrement").disabled = true;
     autoRetryThis();
 }
 

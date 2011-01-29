@@ -1,5 +1,3 @@
-window.addEventListener("load", function(e) { TryAgain.init(); }, false);
-
 var TryAgain = {
     STATUS_UNKNOWN: 0,
     STATUS_POLLING: 1,
@@ -14,7 +12,7 @@ var TryAgain = {
     hasConflict: false,
     downCheckServers: [
             [ "downforeojm", "http://www.downforeveryoneorjustme.com/%url%?src=%source%", "<title>[^<]*(Up|Down)[^<]*</title>", "down", "up" ],
-            [ "uptimeauditor", "http://uptimeauditor.com/quicksitecheck.php?x=%url%&src=%source%", "/(fail|ok).gif", "fail", "ok" ],
+            [ "uptimeauditor", "http://www.uptimeauditor.com/quicksitecheck.php?x=%url%&src=%source%", "/(fail|ok).gif", "fail", "ok" ],
         ],
     cacheServices: [
             [ "coral_cdn", "http://%domain%.nyud.net/%url_suffix_escaped%", "http://coralcdn.org/imgs/circles.ico", true ],
@@ -221,7 +219,7 @@ var TryAgain = {
 
     extCheck: false,
     // Executed when application loads
-    init: function() {
+    init: function(e) {
         try {
 
             if (TryAgain.isActive() && TryAgain.checkConflicts) {
@@ -245,8 +243,7 @@ var TryAgain = {
                     menu.setAttribute("style", "");
                     menu.hidden = false;
                 }
-                var enabled = TryAgain_prefs.getPreference("enabled");
-                menu.setAttribute('checked', enabled == 1);
+                menu.setAttribute('checked', TryAgain_prefs.getPreference("enabled") == 1);
             }
 
             if (TryAgain.hasConflict) return;
@@ -281,6 +278,10 @@ var TryAgain = {
 
     // Returns true if the 'Enable TryAgain' menu option is checked.
     isActive: function() {
+        if (!TryAgain._online || TryAgain_prefs.getPreference("offlineModeBehavior") != 1) {
+            // Disable TryAgain's automatic retry when in offline mode
+            return false;
+        }
         return TryAgain_prefs.getPreference("enabled") == 1;
     },
 
@@ -433,9 +434,20 @@ var TryAgain = {
     },
     
     urlify: function(url, tab_uri, for_request) {
-        url = url.replace('%source%', 'fx-tryagain-'+TryAgain_prefs.version);
+        url = url.replace(/%source%/g, 'fx-tryagain-'+TryAgain_prefs.version);
         if (!tab_uri) {
             tab_uri = '';
+        }
+        if (TryAgain_prefs.getPreference("dropArguments") == 1) {
+            // Remove all arguments
+            var pos = tab_uri.indexOf('?');
+            if (pos > 0) tab_uri = tab_uri.substr(0, pos);
+            tab_uri_unencoded = tab_uri;
+        } else {
+            // Prevent injecting any arguments
+            tab_uri_unencoded = tab_uri;
+            tab_uri_unencoded = tab_uri_unencoded.replace(/\?/g, '%3f');
+            tab_uri_unencoded = tab_uri_unencoded.replace(/&/g, '%26');
         }
         var domain = tab_uri;
         var protocol = 'http://';
@@ -455,14 +467,15 @@ var TryAgain = {
         } else {
             pos2 = tab_uri.length;
         }
-        url = url.replace('%url%', tab_uri);
-        url = url.replace('%url_encoded%', encodeURIComponent(tab_uri));
-        url = url.replace('%url_escaped%', escape(tab_uri));
-        url = url.replace('%protocol%', protocol);
-        url = url.replace('%domain%', domain);
-        url = url.replace('%url_suffix_escaped%', suffix);
+        url = url.replace(/%url%/g, tab_uri_unencoded);
+        url = url.replace(/%url_encoded%/g, encodeURIComponent(tab_uri));
+        url = url.replace(/%url_escaped%/g, escape(tab_uri));
+        url = url.replace(/%protocol%/g, protocol);
+        url = url.replace(/%domain%/g, domain);
+        // Add the source argument
+        url = url.replace(/%url_suffix_escaped%/g, suffix);
         if (!for_request) {
-            url = url.replace('&', '&amp;');
+            url = url.replace(/&/g, '&amp;');
         }
         return url;
     },
@@ -639,7 +652,7 @@ var TryAgain = {
                     // Support for Fierr
                     tryAgain_btn = doc.getElementById('tryAgain');
                 }
-
+                
                 if (!TryAgain.isActive()) {
                     // Hide the TryAgain part:
                     var tryagainContainer = doc.getElementById("tryagainContainer");
@@ -709,9 +722,9 @@ var TryAgain = {
                 stopRetry_btn.setAttribute("onclick", "stopRetry();");
                 stopRetry_btn.setAttribute("id", "errorStopRetry");
 
-                var increment_btn = doc.createElement("button");
+                var increment_btn = doc.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "xul:command");
                 increment_btn.setAttribute("id", "errorIncrement");
-                increment_btn.setAttribute("onclick", "autoRetryThis();");
+                increment_btn.setAttribute("oncommand", "autoRetryThis();");
                 increment_btn.style.display = "none";
                 tryAgain_btn.parentNode.appendChild(increment_btn);
                 
@@ -881,9 +894,9 @@ var TryAgain = {
                     notify: function(timer) {
                         timer.delay = 1000;
                         try {
-                            var errorIncrement = doc.getElementById("errorIncrement")
-                            if (errorIncrement) {
-                                errorIncrement.click();
+                            var errorIncrement = doc.getElementById("errorIncrement");
+                            if (errorIncrement && !errorIncrement.disabled) {
+                                errorIncrement.doCommand();
                             } else {
                                 timer.cancel();
                             }
@@ -928,5 +941,31 @@ var TryAgain = {
                 // Just to make sure no errors occur on blank tabs.
             }
         }
-    }
+    },
+    
+    onOffline: function(e) {
+        TryAgain._online = false;
+    },
+
+    onOnline: function(e) {
+        TryAgain.debug("online!");
+        if (TryAgain._online || TryAgain_prefs.getPreference("offlineModeBehavior") != 2) {
+            // If we're already online, do not reload tabs
+            return;
+        }
+        TryAgain._online = true;
+        Application.windows.forEach( function(window) {
+            window.tabs.forEach( function(tab) {
+                if (tab.document.documentURI.substr(0, 14) == 'about:neterror') {
+                    // Reload tabs displaying the offline error
+                    tab.document.location.reload();
+                }
+            })
+        })
+    },
+
 }
+
+window.addEventListener("load", TryAgain.init, false);
+window.addEventListener("offline", TryAgain.onOffline, false)
+window.addEventListener("online", TryAgain.onOnline, false)

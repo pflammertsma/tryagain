@@ -5,28 +5,28 @@ overlay chrome://browser/content/browser.xul chrome://tryagain/content/tryagain_
 overlay chrome://navigator/content/navigator.xul chrome://tryagain/content/tryagain_seamonkey.xul application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
 
 ## Firefox 2 and older ##
-content	tryagain	jar:chrome/tryagain.jar!/content/
+content	tryagain	chrome/tryagain/content/
 ## Firefox 3 and newer ##
-content	tryagain	jar:chrome/tryagain.jar!/content/ contentaccessible=yes
+content	tryagain	chrome/tryagain/content/ contentaccessible=yes
 
-skin	tryagain	classic/1.0	jar:chrome/tryagain.jar!/skin/
+skin	tryagain	classic/1.0	chrome/tryagain/skin/
 
-locale	tryagain	en    jar:chrome/tryagain.jar!/locale/en/
-locale	tryagain	en-GB jar:chrome/tryagain.jar!/locale/en-GB/
-locale	tryagain	en-US jar:chrome/tryagain.jar!/locale/en-US/
-locale	tryagain	et-EE jar:chrome/tryagain.jar!/locale/et-EE/
-locale	tryagain	de    jar:chrome/tryagain.jar!/locale/de/
-locale	tryagain	es-ES jar:chrome/tryagain.jar!/locale/es-ES/
-locale	tryagain	fr    jar:chrome/tryagain.jar!/locale/fr/
-locale	tryagain	gl-ES jar:chrome/tryagain.jar!/locale/gl-ES/
-locale	tryagain	it-IT jar:chrome/tryagain.jar!/locale/it-IT/
-locale	tryagain	nl    jar:chrome/tryagain.jar!/locale/nl/
-locale	tryagain	pl    jar:chrome/tryagain.jar!/locale/pl/
-locale	tryagain	pt    jar:chrome/tryagain.jar!/locale/pt/
-locale	tryagain	pt-BR jar:chrome/tryagain.jar!/locale/pt-BR/
-locale	tryagain	pt-PT jar:chrome/tryagain.jar!/locale/pt-PT/
-locale  tryagain	ru    jar:chrome/tryagain.jar!/locale/ru/
-locale  tryagain	sr    jar:chrome/tryagain.jar!/locale/sr/
-locale  tryagain	sv-SE jar:chrome/tryagain.jar!/locale/sv-SE/
-locale  tryagain	tr-TR jar:chrome/tryagain.jar!/locale/tr-TR/
-locale  tryagain	zh-CN jar:chrome/tryagain.jar!/locale/zh-CN/
+locale	tryagain	en    chrome/tryagain/locale/en/
+locale	tryagain	en-GB chrome/tryagain/locale/en-GB/
+locale	tryagain	en-US chrome/tryagain/locale/en-US/
+locale	tryagain	et-EE chrome/tryagain/locale/et-EE/
+locale	tryagain	de    chrome/tryagain/locale/de/
+locale	tryagain	es-ES chrome/tryagain/locale/es-ES/
+locale	tryagain	fr    chrome/tryagain/locale/fr/
+locale	tryagain	gl-ES chrome/tryagain/locale/gl-ES/
+locale	tryagain	it-IT chrome/tryagain/locale/it-IT/
+locale	tryagain	nl    chrome/tryagain/locale/nl/
+locale	tryagain	pl    chrome/tryagain/locale/pl/
+locale	tryagain	pt    chrome/tryagain/locale/pt/
+locale	tryagain	pt-BR chrome/tryagain/locale/pt-BR/
+locale	tryagain	pt-PT chrome/tryagain/locale/pt-PT/
+locale  tryagain	ru    chrome/tryagain/locale/ru/
+locale  tryagain	sr    chrome/tryagain/locale/sr/
+locale  tryagain	sv-SE chrome/tryagain/locale/sv-SE/
+locale  tryagain	tr-TR chrome/tryagain/locale/tr-TR/
+locale  tryagain	zh-CN chrome/tryagain/locale/zh-CN/

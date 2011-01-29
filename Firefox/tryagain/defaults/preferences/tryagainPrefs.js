@@ -8,3 +8,5 @@ pref("extensions.tryagain.useauditing", 1);
 pref("extensions.tryagain.auditingTimeout", 60);
 pref("extensions.tryagain.showCaches", 1);
 pref("extensions.tryagain.customStyle", 0);
+pref("extensions.tryagain.dropArguments", 0);
+pref("extensions.tryagain.offlineModeBehavior", 2);
