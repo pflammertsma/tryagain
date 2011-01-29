@@ -13,7 +13,7 @@ var TryAgain = {
     checkConflicts: true,
     hasConflict: false,
     downCheckServers: [
-            [ "downforeojm", "http://downforeveryoneorjustme.com/%url%?src=%source%", "<title>([^<]*)</title>", "It's not just you!", "It's just you." ],
+            [ "downforeojm", "http://www.downforeveryoneorjustme.com/%url%?src=%source%", "<title>[^<]*(Up|Down)[^<]*</title>", "down", "up" ],
             [ "uptimeauditor", "http://uptimeauditor.com/quicksitecheck.php?x=%url%&src=%source%", "/(fail|ok).gif", "fail", "ok" ],
         ],
     cacheServices: [
@@ -26,16 +26,16 @@ var TryAgain = {
             [ "webcite", "http://webcitation.org/query.php?url=%url_escaped%", "http://webcitation.org/favicon.ico", false ],
         ],
     sounds: [
-            [ "3 beeps", "25881.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25881" ] ]
-            [ "2 blips", "26777.mp3", [ "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ]
-            [ "Beep & blip", "25885.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ]
-            [ "Buzz & blip", "9299.mp3", [ "drogue", "http://www.freesound.org/samplesViewSingle.php?id=7968", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ]
-            [ "Computer keyboard", "7968.mp3", [ "cfork", "http://www.freesound.org/samplesViewSingle.php?id=7968" ] ]
-            [ "Crystal glass", "35631.mp3", [ "reinsamba", "http://www.freesound.org/samplesViewSingle.php?id=35631" ] ]
-            [ "Electromechanical thunk", "35110.mp3", [ "digifishmusic", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=35110" ] ]
-            [ "Kick", "5540.mp3", [ "license", "http://www.freesound.org/samplesViewSingle.php?id=5540" ] ]
-            [ "Glockenspiel", "26875.mp3", [ "cfork", "http://www.freesound.org/samplesViewSingle.php?id=26875" ] ]
-            [ "Tongue click", "34208.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=34208" ] ]
+            [ "3 beeps", "25881.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25881" ] ],
+            [ "2 blips", "26777.mp3", [ "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ],
+            [ "Beep & blip", "25885.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ],
+            [ "Buzz & blip", "9299.mp3", [ "drogue", "http://www.freesound.org/samplesViewSingle.php?id=7968", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ],
+            [ "Computer keyboard", "7968.mp3", [ "cfork", "http://www.freesound.org/samplesViewSingle.php?id=7968" ] ],
+            [ "Crystal glass", "35631.mp3", [ "reinsamba", "http://www.freesound.org/samplesViewSingle.php?id=35631" ] ],
+            [ "Electromechanical thunk", "35110.mp3", [ "digifishmusic", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=35110" ] ],
+            [ "Kick", "5540.mp3", [ "license", "http://www.freesound.org/samplesViewSingle.php?id=5540" ] ],
+            [ "Glockenspiel", "26875.mp3", [ "cfork", "http://www.freesound.org/samplesViewSingle.php?id=26875" ] ],
+            [ "Tongue click", "34208.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=34208" ] ],
         ],
     debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
@@ -237,7 +237,7 @@ var TryAgain = {
                     TryAgain.error(e);
                 }
             }
-            
+
             var menu = document.getElementById("TryAgainMenuItem");
             if (menu) {
                 // Show or hide the menu item:
@@ -456,6 +456,7 @@ var TryAgain = {
             pos2 = tab_uri.length;
         }
         url = url.replace('%url%', tab_uri);
+        url = url.replace('%url_encoded%', encodeURIComponent(tab_uri));
         url = url.replace('%url_escaped%', escape(tab_uri));
         url = url.replace('%protocol%', protocol);
         url = url.replace('%domain%', domain);
@@ -493,9 +494,9 @@ var TryAgain = {
                 if (status == 200) {
                     var response = httpRequest.responseText;
                     var regexp = new RegExp(regex, "gi");
-                    var title = regexp.exec(response);
-                    if (title.length == 2) {
-                        switch (title[1]) {
+                    var match = regexp.exec(response);
+                    if (match.length == 2) {
+                        switch (match[1]) {
                         case matchDown:
                             tab.setAttribute("tryagain_status_"+id, TryAgain.STATUS_GLOBAL);
                             break;
@@ -503,12 +504,14 @@ var TryAgain = {
                             tab.setAttribute("tryagain_status_"+id, TryAgain.STATUS_LOCAL);
                             break;
                         default:
-                            // The website returned an unknown title
+                            // The website returned an unknown match
+                            TryAgain.debug("Unknown match for '" + id + "': " + match[1]);
                             tab.setAttribute("tryagain_status_"+id, TryAgain.STATUS_UNKNOWN);
                             break;
                         }
                     } else {
                         // Regular expression didn't match
+                        TryAgain.debug("No matches for '" + id + "': " + match[1]);
                         tab.setAttribute("tryagain_status_"+id, TryAgain.STATUS_UNKNOWN);
                     }
                 } else {
