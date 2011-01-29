@@ -1,5 +1,5 @@
 var TryAgain_prefs = {
-    version: '3.4.4',
+    version: '3.4.5',
     console: Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService),
     debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
