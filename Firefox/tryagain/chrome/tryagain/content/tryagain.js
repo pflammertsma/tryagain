@@ -4,10 +4,13 @@ var TryAgain = {
     STATUS_LOCAL: 2,
     STATUS_GLOBAL: 3,
     strbundle: 0,
+    browser: false,
+    windowMediator: false,
     httpRequest: false,
     xulButtons: 0,
     remoteIcons: false,
     timers: [],
+    isOnline: true,
     checkConflicts: true,
     hasConflict: false,
     downCheckServers: [
@@ -178,7 +181,7 @@ var TryAgain = {
     showConflict: function(name, id, ext) {
         TryAgain.hasConflict = true;
         var message = 'TryAgain is incompatible with '+name+'; please only use one of the two add-ons.';
-        var nb = gBrowser.getNotificationBox();
+        var nb = TryAgain.browser.getNotificationBox();
         var n = nb.getNotificationWithValue('tryagain-conflict-'+id);
         if (n) {
             n.label = message;
@@ -248,6 +251,26 @@ var TryAgain = {
 
             if (TryAgain.hasConflict) return;
 
+            TryAgain.windowMediator = Components.classes["@mozilla.org/appshell/window-mediator;1"]
+                               .getService(Components.interfaces.nsIWindowMediator);
+            if (typeof TryAgain.windowMediator != 'undefined') {
+                var browserEnum = TryAgain.windowMediator.getEnumerator("navigator:browser");
+                if (browserEnum.hasMoreElements()) {
+                    TryAgain.browser = browserEnum.getNext().gBrowser;
+                }
+            } else {
+                TryAgain.windowMediator = false;
+            }
+            TryAgain.debug("browser before: " + TryAgain.browser);
+            if (!TryAgain.browser && typeof gBrowser != 'undefined') {
+                TryAgain.browser = gBrowser;
+            }
+            if (!TryAgain.browser) {
+                TryAgain.error("Could not find a valid browser instance");
+                return;
+            }
+            TryAgain.debug("browser after: " + TryAgain.browser);
+
             // Load string resource:
             TryAgain.strbundle = document.getElementById("tryagain_strings");
             if (!TryAgain.strbundle) {
@@ -257,19 +280,42 @@ var TryAgain = {
 
             // Add listener to the PageLoad event:
             var appcontent = document.getElementById("appcontent");
+            if (!appcontent) {
+                // Fennec
+                appcontent = document.getElementById("browsers");
+            }
             if (appcontent) {
                 appcontent.addEventListener("DOMContentLoaded", TryAgain.onPageLoad, true);
             } else {
                 TryAgain.error(new Error("browser cannot be resolved"));
             }
+            // To do: make enabling this a preference
+            if (true) {
+                try {
+                    var observerService = Components.classes["@mozilla.org/observer-service;1"]
+                                    .getService(Components.interfaces.nsIObserverService);
+                    observerService.addObserver(TryAgain, "http-on-examine-response", false);
+                } catch (e) {
+                    TryAgain.error(e);
+                }
+            }
 
             // Add listener to address bar
             var urlbar = document.getElementById("urlbar");
-            urlbar.addEventListener("input", TryAgain.stop, true);
+            if (!urlbar) {
+                // Fennec
+                urlbar = document.getElementById("urlbar-edit");
+            }
+            if (urlbar) {
+                urlbar.addEventListener("change", TryAgain.stop, true);
+                urlbar.addEventListener("focus", TryAgain.stop, true);
+            }
 
             // Add listener to ESC-key:
             var stop_key = document.getElementById("key_stop");
-            stop_key.addEventListener("command", TryAgain.stop, true);
+            if (stop_key) {
+                stop_key.addEventListener("command", TryAgain.stop, true);
+            }
 
         } catch (e) {
             TryAgain.trace(document, e);
@@ -278,7 +324,7 @@ var TryAgain = {
 
     // Returns true if the 'Enable TryAgain' menu option is checked.
     isActive: function() {
-        if (!TryAgain._online || TryAgain_prefs.getPreference("offlineModeBehavior") != 1) {
+        if (!TryAgain.isOnline && TryAgain_prefs.getPreference("offlineModeBehavior") != 1) {
             // Disable TryAgain's automatic retry when in offline mode
             return false;
         }
@@ -340,7 +386,7 @@ var TryAgain = {
         } catch (e) {
         }
         var message = 'Restart ' + name + ' to apply the changes.';
-        var nb = gBrowser.getNotificationBox();
+        var nb = TryAgain.browser.getNotificationBox();
         var n = nb.getNotificationWithValue('tryagain-restart');  
         if (n) {
             n.label = message;
@@ -374,28 +420,46 @@ var TryAgain = {
     getTabFromPageloadEvent: function(doc) {
         // Enumerate through tabs to find the tab where
         // the event came from:
-        var num = gBrowser.browsers.length;
-        for (var i = 0; i < num; i++) {
-            var b = gBrowser.getBrowserAtIndex(i);
-            if (b.contentDocument==doc) {
-                return b;
+        if (TryAgain.browser) {
+            var browserEnum = TryAgain.windowMediator.getEnumerator("navigator:browser");
+            TryAgain.debug(browserEnum);
+            while (browserEnum.hasMoreElements()) {
+                var browser = browserEnum.getNext();
+                var tab = TryAgain.getTabFromBrowser(browser.gBrowser, doc);
+                if (tab) return tab;
             }
+        } else {
+            tab = TryAgain.getTabFromBrowser(TryAgain.browser, doc);
+            if (tab) return tab;
         }
         
         // No tab will be found if the pageload event was fired from within a frame or iframe:
-        return false; //gBrowser.mCurrentTab;
+        return false; //TryAgain.browser.mCurrentTab;
+    },
+
+    getTabFromBrowser: function(browser, doc) {
+        var num = browser.browsers.length;
+        for (var i = 0; i < num; i++) {
+            var b = browser.getBrowserAtIndex(i);
+            if (b.contentDocument == doc) {
+                return b;
+            }
+        }
+        return false;
     },
     
     // Returns the frame or iframe from which an onpageload event was fired
     getFrameFromPageloadEvent: function(doc) {
         // Enumerate through tabs to find the frame where
         // the event came from:
-        var num = gBrowser.browsers.length;
-        for (var i = 0; i < num; i++) {
-            var b = gBrowser.getBrowserAtIndex(i);
-            var result = TryAgain.checkFramesInDocument(b.contentDocument, doc);
-            if (result!==false) {
-                return result;
+        if (typeof TryAgain.browser != 'undefined') {
+            var num = TryAgain.browser.browsers.length;
+            for (var i = 0; i < num; i++) {
+                var b = TryAgain.browser.getBrowserAtIndex(i);
+                var result = TryAgain.checkFramesInDocument(b.contentDocument, doc);
+                if (result!==false) {
+                    return result;
+                }
             }
         }
         return false;
@@ -589,12 +653,14 @@ var TryAgain = {
 
     // Executed when the user presses ESC
     stop: function(event) {
-        var doc = gBrowser.contentDocument;
-        if (doc.documentURI.substr(0,14)=="about:neterror" || doc.title=="502 Bad Gateway") {
-            if (TryAgain.isActive()) {
-                var stopRetry_btn = doc.getElementById("errorStopRetry");
-                if (stopRetry_btn) {
-                    stopRetry_btn.click();
+        if (typeof TryAgain.browser != 'undefined') {
+            var doc = TryAgain.browser.contentDocument;
+            if (doc.documentURI.substr(0,14)=="about:neterror" || doc.title=="502 Bad Gateway") {
+                if (TryAgain.isActive()) {
+                    var stopRetry_btn = doc.getElementById("errorStopRetry");
+                    if (stopRetry_btn) {
+                        stopRetry_btn.click();
+                    }
                 }
             }
         }
@@ -629,7 +695,7 @@ var TryAgain = {
     // Executed on every pageload
     onPageLoad: function(anEvent) {
         var errmessage = "";
-        
+
         if (TryAgain.hasConflict) return;
 
         // Check if pageload concerns a document
@@ -669,6 +735,7 @@ var TryAgain = {
 
                 tab = TryAgain.getTabFromPageloadEvent(doc);
                 var tab_uri = false;
+
                 if (tab===false) {
                     tab = TryAgain.getFrameFromPageloadEvent(doc);
                     // Tab is now actually a FRAME or an IFRAME
@@ -722,11 +789,15 @@ var TryAgain = {
                 stopRetry_btn.setAttribute("onclick", "stopRetry();");
                 stopRetry_btn.setAttribute("id", "errorStopRetry");
 
-                var increment_btn = doc.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "xul:command");
-                increment_btn.setAttribute("id", "errorIncrement");
-                increment_btn.setAttribute("oncommand", "autoRetryThis();");
-                increment_btn.style.display = "none";
-                tryAgain_btn.parentNode.appendChild(increment_btn);
+                try {
+                    var increment_btn = doc.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "xul:command");
+                    increment_btn.setAttribute("id", "errorIncrement");
+                    increment_btn.setAttribute("oncommand", "autoRetryThis();");
+                    increment_btn.style.display = "none";
+                    tryAgain_btn.parentNode.appendChild(increment_btn);
+                } catch (e) {
+                    TryAgain.error(e);
+                }
                 
                 if (!TryAgain.isActive()) {
                     var iconBox = doc.createElement("div");
@@ -834,6 +905,8 @@ var TryAgain = {
                 var max_repeat = TryAgain_prefs.getPreference("repeat");
                 var repeat  = 1;
 
+TryAgain.debug("tryagain ok...");
+
                 // If tab indicates that this page is *RE*loaded, update repeat-counter.
                 if (tab.hasAttribute("tryagain_rep")) {
                     repeat = 1 + parseInt(tab.getAttribute("tryagain_rep"));
@@ -926,6 +999,9 @@ var TryAgain = {
                         }
                     }
                 }
+
+TryAgain.debug("tryagain done!");
+
             } catch (exception) {
                 TryAgain.trace(doc, exception, errmessage);
             }
@@ -942,18 +1018,30 @@ var TryAgain = {
             }
         }
     },
+
+    // This function implements the nsIObserverService interface and observes the status of all HTTP channels
+    observe : function(aSubject, aTopic, aData) {
+        try {
+            var httpChannel = aSubject.QueryInterface(Components.interfaces.nsIHttpChannel);
+            var interfaceRequestor = httpChannel.notificationCallbacks.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
+            var domWindow = interfaceRequestor.getInterface(Components.interfaces.nsIDOMWindow);
+            TryAgain.debug("HTTP " + httpChannel.responseStatus + " for " + httpChannel.originalURI.spec + "; window=" + domWindow);
+        } catch (e) {
+            TryAgain.error(e);
+            // Probably wasn't relevant; ignore
+        }
+    },
     
     onOffline: function(e) {
-        TryAgain._online = false;
+        TryAgain.isOnline = false;
     },
 
     onOnline: function(e) {
-        TryAgain.debug("online!");
-        if (TryAgain._online || TryAgain_prefs.getPreference("offlineModeBehavior") != 2) {
+        if (TryAgain.isOnline || TryAgain_prefs.getPreference("offlineModeBehavior") != 2) {
             // If we're already online, do not reload tabs
             return;
         }
-        TryAgain._online = true;
+        TryAgain.isOnline = true;
         Application.windows.forEach( function(window) {
             window.tabs.forEach( function(tab) {
                 if (tab.document.documentURI.substr(0, 14) == 'about:neterror') {
