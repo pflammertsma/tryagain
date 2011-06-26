@@ -14,7 +14,8 @@ var TryAgain = {
     isOnline: true,
     checkConflicts: true,
     hasConflict: false,
-    observeHTTP: false,
+    observeHTTP: true,
+    notifySuccess: false,
     debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
     trace: function(doc, err, msg) {
@@ -161,10 +162,12 @@ var TryAgain = {
                     var property = rdfSvc.GetResource("http://www.mozilla.org/2004/em-rdf#isDisabled");
                     disabled = extMgrDs.GetTarget(source, property, true);
                     if (disabled) {
-                        disabled = disabled.QueryInterface(Ci.nsIRDFLiteral);
-                        if (disabled.Value=="false") {
+                        var disabled2 = disabled.QueryInterface(Ci.nsIRDFLiteral);
+                        if (disabled2.Value=="false") {
                             TryAgain.showConflict(name, id, ext);
                         }
+                        // TODO check if this is needed:
+                        // disabled2.Release();
                     }
                 }
             } else {
@@ -514,6 +517,7 @@ var TryAgain = {
         var pos2 = tab_uri.indexOf('/', pos1+1);
         var suffix = '';
         if (pos2 > 0) {
+            pos1++;
             domain = tab_uri.substr(pos1, pos2-pos1);
             pos2++;
             if (pos2 < tab_uri.length) {
@@ -528,7 +532,7 @@ var TryAgain = {
         url = url.replace(/%protocol%/g, protocol);
         url = url.replace(/%domain%/g, domain);
         // Add the source argument
-        url = url.replace(/%url_suffix_escaped%/g, suffix);
+        url = url.replace(/%url_suffix%/g, suffix);
         if (!for_request) {
             url = url.replace(/&/g, '&amp;');
         }
@@ -579,8 +583,6 @@ var TryAgain = {
                         }
                     } else {
                         // Regular expression didn't match
-                        TryAgain.debug("No matches for '" + id + "': " + regex);
-                        TryAgain.debug(response);
                         tab.setAttribute("tryagain_status_"+id, TryAgain.STATUS_UNKNOWN);
                     }
                 } else {
@@ -608,12 +610,12 @@ var TryAgain = {
             if (!downStatus) downStatus = TryAgain.STATUS_UNKNOWN;
             if (downStatus == TryAgain.STATUS_POLLING) {
                 status.innerHTML =
-                    '<a id="error_'+id+'" href="'+TryAgain.urlify(serverUrl, url)+'">' +
+                    '<a id="error_'+id+'" class="left" href="'+TryAgain.urlify(serverUrl, url)+'">' +
                     TryAgain.getString("text."+id) + '</a>' +
                     '<div>' + TryAgain.getString("text.site_down_checking") + '</div>';
             } else if (downStatus == TryAgain.STATUS_LOCAL) {
                 status.innerHTML =
-                    '<a id="error_'+id+'" href="'+TryAgain.urlify(serverUrl, url)+'">' +
+                    '<a id="error_'+id+'" class="left" href="'+TryAgain.urlify(serverUrl, url)+'">' +
                     TryAgain.getString("text."+id) + '</a>' +
                     '<div style="color:red;"><b>' + TryAgain.getString("text.site_down_local") + '</b> ' +
                     '<a href="'+TryAgain.urlify(TryAgain.getProxyServer(), url) + '">' +
@@ -621,7 +623,7 @@ var TryAgain = {
                     '</div>';
             } else if (downStatus == TryAgain.STATUS_GLOBAL) {
                 status.innerHTML =
-                    '<a id="error_'+id+'" href="'+TryAgain.urlify(serverUrl, url)+'">' +
+                    '<a id="error_'+id+'" class="left" href="'+TryAgain.urlify(serverUrl, url)+'">' +
                     TryAgain.getString("text."+id) + '</a>' +
                     '<div><b>' + TryAgain.getString("text.site_down_global") + '</b></div>';
                 var regexp2 = new RegExp("http[s]?://([^/]*)", "gi");
@@ -818,6 +820,7 @@ var TryAgain = {
                     if (server[0]) {
                         var li = doc.createElement("li");
                         li.setAttribute("id", "status_" + server[0]);
+                        li.setAttribute("class", "auditor");
                         tryagainList.appendChild(li);
                     } else {
                         TryAgain.error('downCheckServers[' + id + '] is not set');
@@ -962,7 +965,8 @@ var TryAgain = {
                             if (errorIncrement && !errorIncrement.disabled) {
                                 TryAgain.click(errorIncrement);
                             } else {
-                                // TODO check if new documentURI is not a netError to determine success
+                                // TODO check if new documentURI is not a
+                                // netError to determine success
                                 // alert(doc.documentURI + "\n" + tab.contentWindow.window.document.documentURI);
                                 timer.cancel();
                                 TryAgain.timers[idx] = null;
@@ -1000,7 +1004,8 @@ var TryAgain = {
             }
         } else {
             try {
-                // A new webpage is loaded after the netError.xhtml page, so reset the counter to zero:
+                // A new webpage is loaded after the netError.xhtml page, so
+                // reset the counter to zero:
                 tab = TryAgain.getTabFromPageloadEvent(doc);
 
                 if (tab!==false) {
@@ -1012,37 +1017,69 @@ var TryAgain = {
         }
     },
 
-    // This function implements the nsIObserverService interface and observes the status of all HTTP channels
+    // This function implements the nsIObserverService interface and observes
+    // the status of all HTTP channels
     observe : function(aSubject, aTopic, aData) {
         try {
             var httpChannel = aSubject.QueryInterface(Components.interfaces.nsIHttpChannel);
-            // TODO check list of bad URLs
-            var wasPreviouslyBad = false;
             if (httpChannel.responseStatus == 404) {
-                var notificationCallbacks = null;
-                if (httpChannel.notificationCallbacks) {
-                    notificationCallbacks = httpChannel.notificationCallbacks;
-                } else {
-                    notificationCallbacks = aSubject.loadGroup.notificationCallbacks;
+                var window = TryAgain.windowFromChannel(httpChannel, aSubject);
+                TryAgain.debug("windowFromChannel(): " + window);
+                // Only check the URL of the window itself (e.g. not missing images)
+                if (window && window.location == httpChannel.originalURI.spec) {
+                    TryAgain.onPageErrorCode(window);
                 }
-                var interfaceRequestor = notificationCallbacks.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
-                var domWindow = interfaceRequestor.getInterface(Components.interfaces.nsIDOMWindow);
-                if (domWindow.location == httpChannel.originalURI.spec) {
-                    // Only check the URL of the window itself (e.g. not missing images)
-                    TryAgain.debug("TryAgain: HTTP " + httpChannel.responseStatus + " for " + httpChannel.originalURI.spec);
-                    // domWindow.alert("TryAgain: HTTP " + httpChannel.responseStatus + " for " + httpChannel.originalURI.spec + " in " + domWindow.name);
-                    TryAgain.onPageErrorCode(domWindow);
+            } else if (httpChannel.responseStatus == 200 && TryAgain.notifySuccess) {
+                var window = TryAgain.windowFromChannel(httpChannel, aSubject);
+                // Only check the URL of the window itself (e.g. not missing images)
+                if (window && window.location == httpChannel.originalURI.spec) {
+                    var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+                                        .getService(Components.interfaces.nsISessionStore);
+                    var retry = ss.getWindowValue(window, "tryagain-retry");
+                    TryAgain.debug("this tab: retry=" + retry);
+                    // play a sound if setting enabled
                 }
-            } else if (httpChannel.responseStatus == 200 && wasPreviouslyBad) {
-                // play a sound if setting enabled
             }
         } catch (e) {
             TryAgain.error(e);
             // Probably wasn't relevant; ignore
         }
     },
-    
+
+    windowFromChannel: function(httpChannel, aSubject) {
+        var domWindow;
+        try {
+            var notificationCallbacks;
+            if (httpChannel.notificationCallbacks) {
+                notificationCallbacks = httpChannel.notificationCallbacks;
+            } else {
+                notificationCallbacks = aSubject.loadGroup.notificationCallbacks;
+            }
+            var interfaceRequestor = notificationCallbacks.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
+            domWindow = interfaceRequestor.getInterface(Components.interfaces.nsIDOMWindow);
+        } catch (e) {
+            // No window associated with this channel
+            TryAgain.error(e);
+            TryAgain.debug("no window for " + httpChannel.originalURI.spec);
+            return null;
+        }
+        TryAgain.debug("windowFromChannel(): " + domWindow);
+        return domWindow;
+    },
+
     onPageErrorCode: function(window) {
+        var domWindow = gBrowser.selectedBrowser.contentWindow;
+        // FIXME This doesn't work because SessionStore expects a tab or a
+        // browser window, and we're providing a DOM window; we need to store
+        // this information in the tab, but how do we get the tab from the DOM
+        // window?
+        var retry;
+        //var ss = Components.classes["@mozilla.org/browser/sessionstore;1"]
+        //                    .getService(Components.interfaces.nsISessionStore);
+        //retry = ss.getWindowValue(domWindow, "tryagain-retry");
+        if (!retry) {
+            retry = 0;
+        }
         var timer;
         try {
             timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
@@ -1077,6 +1114,13 @@ var TryAgain = {
                                  'chrome://tryagain/skin/icon16.png',
                                   priority, buttons);
         }
+        retry++;
+        if (retry > TryAgain_prefs.getPreference("repeat")) {
+            n.label = "TryAgain stopped trying to reload this page after " + retry + " attempts.";
+            return;
+        }
+        // FIXME Same as above!
+        //ss.setWindowValue(domWindow, "tryagain-retry", retry+1);
         // Add listener to address bar
         var urlbar = document.getElementById("urlbar");
         if (!urlbar) {
