@@ -7,37 +7,14 @@ var TryAgain = {
     browser: false,
     windowMediator: false,
     httpRequest: false,
-    xulButtons: 0,
+    xulButtons: 0, // 0=unknown; 1=no; 2=yes
+    xulNS: "http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul",
     remoteIcons: false,
     timers: [],
     isOnline: true,
     checkConflicts: true,
     hasConflict: false,
-    downCheckServers: [
-            [ "downforeojm", "http://www.downforeveryoneorjustme.com/%url%?src=%source%", "<title>[^<]*(Up|Down)[^<]*</title>", "down", "up" ],
-            [ "uptimeauditor", "http://www.uptimeauditor.com/quicksitecheck.php?x=%url%&src=%source%", "/(fail|ok).gif", "fail", "ok" ],
-        ],
-    cacheServices: [
-            [ "coral_cdn", "http://%domain%.nyud.net/%url_suffix_escaped%", "http://coralcdn.org/imgs/circles.ico", true ],
-            [ "google", "http://webcache.googleusercontent.com/search?q=cache:%url_escaped%", "http://google.com/favicon.ico", true ],
-            [ "wayback", "http://web.archive.org/web/*/%url_escaped%", "http://web.archive.org/favicon.ico", false ],
-            [ "bing", "http://www.bing.com/search?q=url:%url_escaped%", "http://www.bing.com/favicon.ico", false ],
-            [ "yahoo", "http://search.yahoo.com/search?p=%url_escaped%", "http://search.yahoo.com/favicon.ico", false ],
-            [ "gigablast", "http://www.gigablast.com/index.php?q=url:%url_escaped%", "http://www.gigablast.com/favicon.ico", false ],
-            [ "webcite", "http://webcitation.org/query.php?url=%url_escaped%", "http://webcitation.org/favicon.ico", false ],
-        ],
-    sounds: [
-            [ "3 beeps", "25881.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25881" ] ],
-            [ "2 blips", "26777.mp3", [ "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ],
-            [ "Beep & blip", "25885.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ],
-            [ "Buzz & blip", "9299.mp3", [ "drogue", "http://www.freesound.org/samplesViewSingle.php?id=7968", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ],
-            [ "Computer keyboard", "7968.mp3", [ "cfork", "http://www.freesound.org/samplesViewSingle.php?id=7968" ] ],
-            [ "Crystal glass", "35631.mp3", [ "reinsamba", "http://www.freesound.org/samplesViewSingle.php?id=35631" ] ],
-            [ "Electromechanical thunk", "35110.mp3", [ "digifishmusic", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=35110" ] ],
-            [ "Kick", "5540.mp3", [ "license", "http://www.freesound.org/samplesViewSingle.php?id=5540" ] ],
-            [ "Glockenspiel", "26875.mp3", [ "cfork", "http://www.freesound.org/samplesViewSingle.php?id=26875" ] ],
-            [ "Tongue click", "34208.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=34208" ] ],
-        ],
+    observeHTTP: false,
     debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
     trace: function(doc, err, msg) {
@@ -92,27 +69,36 @@ var TryAgain = {
         return str;
     },
 
-    createButton: function(doc, parentBtn, text) {
+    createButton: function(doc, parent, text, event) {
         var btn;
         if (TryAgain.xulButtons == 0) {
             TryAgain.xulButtons = 1;
-            if (parentBtn) {
-                if (parentBtn.nodeName=='button') {
-                    TryAgain.xulButtons = 2;
-                }
-            } else {
-                TryAgain.error("parent not set for createButton: " + parentBtn);
-            }
         }
-        if (TryAgain.xulButtons == 1) {
-            btn = doc.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "xul:button");
-            btn.setAttribute("label", TryAgain.getString("text.stop_trying"));
+        if (TryAgain.xulButtons == 2) {
+            btn = doc.createElementNS(TryAgain.xulNS, "button");
+            btn.setAttribute("label", text);
+            if (event) btn.setAttribute("oncommand", event);
         } else {
             btn = doc.createElement("button");
-            btn.innerHTML = TryAgain.getString("text.stop_trying");
+            btn.innerHTML = text;
+            if (event) btn.setAttribute("onclick", event);
         }
-        parentBtn.parentNode.appendChild(btn);
+        parent.appendChild(btn);
         return btn;
+    },
+    
+    click: function(btn) {
+        if (btn.doCommand) {
+            btn.doCommand();
+        } else {
+            try {
+                var evt = doc.createEvent('HTMLEvents');
+                evt.initEvent('click', false, false);
+                btn.dispatchEvent(evt);
+            } catch (e) {
+                btn.click();
+            }
+        }
     },
 
     getString: function(str) {
@@ -130,7 +116,15 @@ var TryAgain = {
             TryAgain.error("missing string: " + str + "; " + e);
             return str;
         }
-    },  
+    },
+    getProxyServer: function() {
+        var selectedProxy = TryAgain_prefs.getPreference("proxyServer");
+        if (selectedProxy == null) {
+            return TryAgain_prefs.proxyServers[0][1];
+        } else {
+            return TryAgain_prefs.proxyServers[selectedProxy][1];
+        }
+    },
 
     checkConflict: function(name, id) {
         var ext;
@@ -261,7 +255,6 @@ var TryAgain = {
             } else {
                 TryAgain.windowMediator = false;
             }
-            TryAgain.debug("browser before: " + TryAgain.browser);
             if (!TryAgain.browser && typeof gBrowser != 'undefined') {
                 TryAgain.browser = gBrowser;
             }
@@ -269,7 +262,6 @@ var TryAgain = {
                 TryAgain.error("Could not find a valid browser instance");
                 return;
             }
-            TryAgain.debug("browser after: " + TryAgain.browser);
 
             // Load string resource:
             TryAgain.strbundle = document.getElementById("tryagain_strings");
@@ -289,8 +281,8 @@ var TryAgain = {
             } else {
                 TryAgain.error(new Error("browser cannot be resolved"));
             }
-            // To do: make enabling this a preference
-            if (true) {
+            // TODO make enabling this a preference
+            if (TryAgain.observeHTTP) {
                 try {
                     var observerService = Components.classes["@mozilla.org/observer-service;1"]
                                     .getService(Components.interfaces.nsIObserverService);
@@ -422,7 +414,6 @@ var TryAgain = {
         // the event came from:
         if (TryAgain.browser) {
             var browserEnum = TryAgain.windowMediator.getEnumerator("navigator:browser");
-            TryAgain.debug(browserEnum);
             while (browserEnum.hasMoreElements()) {
                 var browser = browserEnum.getNext();
                 var tab = TryAgain.getTabFromBrowser(browser.gBrowser, doc);
@@ -572,8 +563,8 @@ var TryAgain = {
                     var response = httpRequest.responseText;
                     var regexp = new RegExp(regex, "gi");
                     var match = regexp.exec(response);
-                    if (match.length == 2) {
-                        switch (match[1]) {
+                    if (match != null && match.length == 2) {
+                        switch (match[1].toLowerCase()) {
                         case matchDown:
                             tab.setAttribute("tryagain_status_"+id, TryAgain.STATUS_GLOBAL);
                             break;
@@ -588,7 +579,8 @@ var TryAgain = {
                         }
                     } else {
                         // Regular expression didn't match
-                        TryAgain.debug("No matches for '" + id + "': " + match[1]);
+                        TryAgain.debug("No matches for '" + id + "': " + regex);
+                        TryAgain.debug(response);
                         tab.setAttribute("tryagain_status_"+id, TryAgain.STATUS_UNKNOWN);
                     }
                 } else {
@@ -624,7 +616,7 @@ var TryAgain = {
                     '<a id="error_'+id+'" href="'+TryAgain.urlify(serverUrl, url)+'">' +
                     TryAgain.getString("text."+id) + '</a>' +
                     '<div style="color:red;"><b>' + TryAgain.getString("text.site_down_local") + '</b> ' +
-                    '<a href="'+TryAgain.urlify('http://proxy.org/proxy.pl?url=%url_escaped%&proxy=proxify.com', url) + '">' +
+                    '<a href="'+TryAgain.urlify(TryAgain.getProxyServer(), url) + '">' +
                     TryAgain.getString("text.try_proxy") + '</a>' +
                     '</div>';
             } else if (downStatus == TryAgain.STATUS_GLOBAL) {
@@ -653,19 +645,19 @@ var TryAgain = {
 
     // Executed when the user presses ESC
     stop: function(event) {
-        if (typeof TryAgain.browser != 'undefined') {
-            var doc = TryAgain.browser.contentDocument;
-            if (doc.documentURI.substr(0,14)=="about:neterror" || doc.title=="502 Bad Gateway") {
-                if (TryAgain.isActive()) {
-                    var stopRetry_btn = doc.getElementById("errorStopRetry");
-                    if (stopRetry_btn) {
-                        stopRetry_btn.click();
-                    }
+        var doc = gBrowser.contentDocument;
+        if (doc.documentURI.substr(0,14)=="about:neterror" || doc.title=="502 Bad Gateway") {
+            if (TryAgain.isActive()) {
+                var stopRetry_btn = doc.getElementById("errorStopRetry");
+                if (stopRetry_btn) {
+                    TryAgain.click(stopRetry_btn);
+                    var errorIncrement = doc.getElementById("errorIncrement");
+                    if (errorIncrement) errorIncrement.disabled = true;
                 }
             }
         }
     },
-    
+
     addService: function(doc, li, srv, id, tab_uri, className) {
         var div = doc.createElement("div");
         if (className) {
@@ -705,7 +697,11 @@ var TryAgain = {
 
         // Check if document is netError.xhtml
         if (doc.documentURI.substr(0,14)=="about:neterror") {
-            var tab;
+            var errorType = TryAgain_prefs.getVariable(doc.documentURI, "e");
+            if (errorType=="fileNotFound" || errorType=="remoteXUL") {
+                return;
+            }
+			var tab;
             try {
 
                 var script1 = doc.getElementsByTagName("script")[0];
@@ -718,7 +714,10 @@ var TryAgain = {
                     // Support for Fierr
                     tryAgain_btn = doc.getElementById('tryAgain');
                 }
-                
+                if (tryAgain_btn.namespaceURI==TryAgain.xulNS) {
+                    TryAgain.xulButtons = 2;
+                }
+
                 if (!TryAgain.isActive()) {
                     // Hide the TryAgain part:
                     var tryagainContainer = doc.getElementById("tryagainContainer");
@@ -785,20 +784,13 @@ var TryAgain = {
                 style.setAttribute("href", "chrome://tryagain/content/tryagain.css");
                 script1.parentNode.appendChild(style);
 
-                var stopRetry_btn = TryAgain.createButton(doc, tryAgain_btn, TryAgain.getString("text.stop_trying"));
-                stopRetry_btn.setAttribute("onclick", "stopRetry();");
+                var stopRetry_btn = TryAgain.createButton(doc, tryAgain_btn.parentNode, TryAgain.getString("text.stop_trying"), "stopRetry();");
                 stopRetry_btn.setAttribute("id", "errorStopRetry");
 
-                try {
-                    var increment_btn = doc.createElementNS("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul", "xul:command");
-                    increment_btn.setAttribute("id", "errorIncrement");
-                    increment_btn.setAttribute("oncommand", "autoRetryThis();");
-                    increment_btn.style.display = "none";
-                    tryAgain_btn.parentNode.appendChild(increment_btn);
-                } catch (e) {
-                    TryAgain.error(e);
-                }
-                
+                var increment_btn = TryAgain.createButton(doc, tryAgain_btn.parentNode, "", "autoRetryThis();");
+                increment_btn.setAttribute("id", "errorIncrement");
+                increment_btn.style.display = "none";
+
                 if (!TryAgain.isActive()) {
                     var iconBox = doc.createElement("div");
                     iconBox.setAttribute("id", "errorTitleIconBox");
@@ -821,8 +813,8 @@ var TryAgain = {
                 page.appendChild(tryagainList);
 
                 var id;
-                for (id in TryAgain.downCheckServers) {
-                    var server = TryAgain.downCheckServers[id];
+                for (id in TryAgain_prefs.downCheckServers) {
+                    var server = TryAgain_prefs.downCheckServers[id];
                     if (server[0]) {
                         var li = doc.createElement("li");
                         li.setAttribute("id", "status_" + server[0]);
@@ -840,8 +832,8 @@ var TryAgain = {
                     span.innerHTML = TryAgain.getFormattedString("text.view_with", []) + ": ";
                     li.appendChild(span);
                     var moreServices;
-                    for (id in TryAgain.cacheServices) {
-                        var srv = TryAgain.cacheServices[id];
+                    for (id in TryAgain_prefs.cacheServices) {
+                        var srv = TryAgain_prefs.cacheServices[id];
                         if (showCaches != 2 && !srv[3]) {
                             moreServices = true;
                             continue;
@@ -860,8 +852,8 @@ var TryAgain = {
                         }, false);
                         div.appendChild(a);
                         li.appendChild(div);
-                        for (id in TryAgain.cacheServices) {
-                            var srv = TryAgain.cacheServices[id];
+                        for (id in TryAgain_prefs.cacheServices) {
+                            var srv = TryAgain_prefs.cacheServices[id];
                             if (srv[3]) {
                                 continue;
                             }
@@ -904,8 +896,6 @@ var TryAgain = {
                 var repeating = TryAgain_prefs.getPreference("repeating")==1;
                 var max_repeat = TryAgain_prefs.getPreference("repeat");
                 var repeat  = 1;
-
-TryAgain.debug("tryagain ok...");
 
                 // If tab indicates that this page is *RE*loaded, update repeat-counter.
                 if (tab.hasAttribute("tryagain_rep")) {
@@ -950,6 +940,7 @@ TryAgain.debug("tryagain ok...");
                                + extraHTML;
 
                 var timer;
+                var idx;
                 try {
                     timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
                     idx = TryAgain.timers.length;
@@ -969,20 +960,24 @@ TryAgain.debug("tryagain ok...");
                         try {
                             var errorIncrement = doc.getElementById("errorIncrement");
                             if (errorIncrement && !errorIncrement.disabled) {
-                                errorIncrement.doCommand();
+                                TryAgain.click(errorIncrement);
                             } else {
+                                // TODO check if new documentURI is not a netError to determine success
+                                // alert(doc.documentURI + "\n" + tab.contentWindow.window.document.documentURI);
                                 timer.cancel();
+                                TryAgain.timers[idx] = null;
                             }
                         } catch (e) {
-                            TryAgain.error(e);
                             timer.cancel();
+                            TryAgain.timers[idx] = null;
+                            TryAgain.error(e);
                         }
                     }
                 }
                 timer.initWithCallback(event1, 100, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
 
-                for (id in TryAgain.downCheckServers) {
-                    var server = TryAgain.downCheckServers[id];
+                for (id in TryAgain_prefs.downCheckServers) {
+                    var server = TryAgain_prefs.downCheckServers[id];
                     if (TryAgain_prefs.getPreference("useauditing") == 0) {
                         tab.setAttribute("tryagain_status_" + server[0], TryAgain.STATUS_UNKNOWN);
                     }
@@ -992,15 +987,13 @@ TryAgain.debug("tryagain ok...");
                     var d = new Date();
                     if (!tab.hasAttribute("tryagain_audit_check") || tab.getAttribute("tryagain_audit_check") < d.getTime() - TryAgain_prefs.getPreference("auditingTimeout") * 1000) {
                         tab.setAttribute("tryagain_audit_check", d.getTime());
-                        for (id in TryAgain.downCheckServers) {
-                            var server = TryAgain.downCheckServers[id];
+                        for (id in TryAgain_prefs.downCheckServers) {
+                            var server = TryAgain_prefs.downCheckServers[id];
                             var httpRequest = TryAgain.checkDownStatus(doc, tab, tab_uri, server[0], server[1], server[2], server[3], server[4]);
                             tab.setAttribute("tryagain_status_"+id, TryAgain.STATUS_POLLING);
                         }
                     }
                 }
-
-TryAgain.debug("tryagain done!");
 
             } catch (exception) {
                 TryAgain.trace(doc, exception, errmessage);
@@ -1023,24 +1016,129 @@ TryAgain.debug("tryagain done!");
     observe : function(aSubject, aTopic, aData) {
         try {
             var httpChannel = aSubject.QueryInterface(Components.interfaces.nsIHttpChannel);
-            var interfaceRequestor = httpChannel.notificationCallbacks.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
-            var domWindow = interfaceRequestor.getInterface(Components.interfaces.nsIDOMWindow);
-            TryAgain.debug("HTTP " + httpChannel.responseStatus + " for " + httpChannel.originalURI.spec + "; window=" + domWindow);
+            // TODO check list of bad URLs
+            var wasPreviouslyBad = false;
+            if (httpChannel.responseStatus == 404) {
+                var notificationCallbacks = null;
+                if (httpChannel.notificationCallbacks) {
+                    notificationCallbacks = httpChannel.notificationCallbacks;
+                } else {
+                    notificationCallbacks = aSubject.loadGroup.notificationCallbacks;
+                }
+                var interfaceRequestor = notificationCallbacks.QueryInterface(Components.interfaces.nsIInterfaceRequestor);
+                var domWindow = interfaceRequestor.getInterface(Components.interfaces.nsIDOMWindow);
+                if (domWindow.location == httpChannel.originalURI.spec) {
+                    // Only check the URL of the window itself (e.g. not missing images)
+                    TryAgain.debug("TryAgain: HTTP " + httpChannel.responseStatus + " for " + httpChannel.originalURI.spec);
+                    // domWindow.alert("TryAgain: HTTP " + httpChannel.responseStatus + " for " + httpChannel.originalURI.spec + " in " + domWindow.name);
+                    TryAgain.onPageErrorCode(domWindow);
+                }
+            } else if (httpChannel.responseStatus == 200 && wasPreviouslyBad) {
+                // play a sound if setting enabled
+            }
         } catch (e) {
             TryAgain.error(e);
             // Probably wasn't relevant; ignore
         }
     },
     
-    onOffline: function(e) {
-        TryAgain.isOnline = false;
+    onPageErrorCode: function(window) {
+        var timer;
+        try {
+            timer = Components.classes["@mozilla.org/timer;1"].createInstance(Components.interfaces.nsITimer);
+        } catch (e) {
+            TryAgain.error(e);
+            return;
+        }
+        var count = 10;
+        var message = "TryAgain is trying to reload this page. [" + count + "]";
+        var nb = getNotificationBox(window);
+        var id = 'tryagain-retry';
+        var n = nb.getNotificationWithValue(id);
+        if (n) {
+            n.label = message;
+        } else {
+            var buttons = [{
+                label: 'Reload',
+                accessKey: 'R',
+                popup: null,
+                callback: TryAgain.reloadPage,
+                location: window.location,
+                reloadTimer: timer
+            }, {
+                label: 'Stop trying',
+                accessKey: 'S',
+                popup: null,
+                callback: TryAgain.stopReloadPage,
+                reloadTimer: timer
+            }];
+            const priority = nb.PRIORITY_WARNING_LOW;
+            n = nb.appendNotification(message, id,
+                                 'chrome://tryagain/skin/icon16.png',
+                                  priority, buttons);
+        }
+        // Add listener to address bar
+        var urlbar = document.getElementById("urlbar");
+        if (!urlbar) {
+            // Fennec
+            urlbar = document.getElementById("urlbar-edit");
+        }
+        if (urlbar) {
+            var listener = function(event) {
+                var selectedBrowser = gBrowser.selectedBrowser.contentWindow;
+                TryAgain.debug("urlbar: selectedBrowser=" + selectedBrowser + " reloadingTab=" + window);
+                if (selectedBrowser == window) {
+                    TryAgain.stopReloadPage(n, {reloadTimer: timer});
+                }
+            };
+            urlbar.addEventListener("change", listener, true);
+            urlbar.addEventListener("focus", listener, true);
+        }
+        var event = {
+            notify: function(timer) {
+                count--;
+                if (count <= 0) {
+                    timer.cancel();
+                    // Check that the window is still available and that the notification hasn't been closed
+                    if (window && window.location && nb.getNotificationWithValue(id)) {
+                        TryAgain.reloadPage(n, {location: window.location, reloadTimer: timer});
+                    }
+                } else if (n) {
+                    n.label = "TryAgain is trying to reload this page. [" + count + "]";
+                } else {
+                    timer.cancel();
+                }
+            }
+        }
+        timer.initWithCallback(event, 1000, Components.interfaces.nsITimer.TYPE_REPEATING_SLACK);
+    },
+    
+    reloadPage: function(notification, data) {
+        TryAgain.debug("Reloading " + data.location.href);
+        data.location.reload();
+        data.reloadTimer.cancel();
+        if (notification) {
+            notification.label = "TryAgain is reloading this page...";
+            //notification.close();
+        }
     },
 
+    stopReloadPage: function(notification, data) {
+        data.reloadTimer.cancel();
+        if (notification) {
+            notification.close();
+        }
+    },
+
+    onOffline: function(e) {
+        TryAgain.isOnline = false;
+    },  
+    
     onOnline: function(e) {
         if (TryAgain.isOnline || TryAgain_prefs.getPreference("offlineModeBehavior") != 2) {
             // If we're already online, do not reload tabs
             return;
-        }
+        }    
         TryAgain.isOnline = true;
         Application.windows.forEach( function(window) {
             window.tabs.forEach( function(tab) {
@@ -1050,7 +1148,7 @@ TryAgain.debug("tryagain done!");
                 }
             })
         })
-    },
+    }
 
 }
 

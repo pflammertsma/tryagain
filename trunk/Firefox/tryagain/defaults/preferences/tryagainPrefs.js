@@ -9,4 +9,6 @@ pref("extensions.tryagain.auditingTimeout", 60);
 pref("extensions.tryagain.showCaches", 1);
 pref("extensions.tryagain.customStyle", 0);
 pref("extensions.tryagain.dropArguments", 0);
+pref("extensions.tryagain.proxyServer", 0);
 pref("extensions.tryagain.offlineModeBehavior", 2);
+pref("extensions.tryagain.successSound", "25881.mp3");

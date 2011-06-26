@@ -8,6 +8,8 @@
 <!ENTITY options.translation_site "Contribute by translating">
 <!-- Name of the link to the Facebook fan page -->
 <!ENTITY options.facebook_page "Facebook fan page">
+<!-- Name of the link to the donation site -->
+<!ENTITY options.donation_page "Contribute by donating">
 <!-- Title of TryAgain's options screen (please leave the add-on name "TryAgain") -->
 <!ENTITY options.title "TryAgain options">
 <!-- Name of the frame for general settings -->
@@ -33,3 +35,13 @@
 <!ENTITY options.useauditing "Automatically check website status">
 <!-- Name of the checkbox to toggle using a custom error page style -->
 <!ENTITY options.custom_style "Use custom style for error page">
+<!-- Name of the checkbox to toggle using a custom error page style -->
+<!ENTITY options.custom_style "Use custom style for error page">
+<!-- Name of the option that allows a choice of actions when the maximum number of tries is reached -->
+<!ENTITY options.when_max_reached "When the maximum number of tries is reached:">
+<!-- Name of the option that stops trying when the maximum number of tries is reached -->
+<!ENTITY options.when_max_reached_stop_trying "Stop trying">
+<!-- Name of the option that starts trying again after x minutes when the maximum number of tries is reached -->
+<!ENTITY options.when_max_reached_start_again_after "Start trying again after">
+<!-- Name of the option that navigates to the page using a service when the maximum number of tries is reached -->
+<!ENTITY options.when_max_reached_navigate_using "Navigate to the page using">
