@@ -140,7 +140,7 @@ function retryThis(buttonEl) {
         location.reload();
     } catch (e) {
         // We probably tried to reload a URI that caused an exception to
-        // occur;    e.g. a non-existent file.
+        // occur (e.g. a non-existent file).
     }
     var btn = document.getElementById("errorTryAgain");
     if (btn) {
@@ -156,15 +156,13 @@ function initPage() {
     // defined, get the generic message
     var errTitle = document.getElementById("et_" + err);
     var errDesc    = document.getElementById("ed_" + err);
-    if (!errTitle || !errDesc)
-    {
+    if (!errTitle || !errDesc) {
         errTitle = document.getElementById("et_generic");
         errDesc    = document.getElementById("ed_generic");
     }
 
     var title = document.getElementById("errorTitleText");
-    if (title)
-    {
+    if (title) {
         title.parentNode.replaceChild(errTitle, title);
         // change id to the replaced child's id so styling works
         errTitle.id = "errorTitleText";
@@ -175,8 +173,7 @@ function initPage() {
         sd.textContent = getDescription();
 
     var ld = document.getElementById("errorLongDesc");
-    if (ld)
-    {
+    if (ld) {
         ld.parentNode.replaceChild(errDesc, ld);
         // change id to the replaced child's id so styling works
         errDesc.id = "errorLongDesc";
@@ -216,8 +213,7 @@ function initPage() {
         document.getElementById("errorPageContainer").setAttribute("class", "certerror");
         disableTryAgain();
         addDomainErrorLink();
-    }
-    else {
+    } else {
         // Remove the override block for non-certificate errors.    CSS-hiding
         // isn't good enough here, because of bug 39098
         var secOverride = document.getElementById("securityOverrideDiv");

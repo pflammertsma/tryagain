@@ -1,5 +1,59 @@
 var TryAgain_prefs = {
-    version: '3.4.6',
+    version: '3.4.7',
+    downCheckServers: [
+            [ "uptimeauditor", "http://www.uptimeauditor.com/quicksitecheck.php?x=%url%&src=%source%", "/(fail|ok).gif", "fail", "ok" ],
+            [ "downforeojm", "http://www.downforeveryoneorjustme.com/%url%?src=%source%", "<title>[^<]*(Is Up|Is Down) -> [^<]*</title>", "is down", "is up" ],
+        ],
+    proxyServers: [
+            ['proxy.org', "'http://proxy.org/proxy.pl?url=%url_escaped%&proxy=proxify.com'"],
+            ['anonymouse.org', "http://anonymouse.org/cgi-bin/anon-www.cgi/%url_escaped%"],
+        ],
+    cacheServices: [
+            [ "coral_cdn", "http://%domain%.nyud.net/%url_suffix_escaped%", "http://coralcdn.org/imgs/circles.ico", true ],
+            [ "google", "http://webcache.googleusercontent.com/search?q=cache:%url_escaped%", "http://google.com/favicon.ico", true ],
+            [ "wayback", "http://web.archive.org/web/*/%url_escaped%", "http://web.archive.org/favicon.ico", false ],
+            [ "bing", "http://www.bing.com/search?q=url:%url_escaped%", "http://www.bing.com/favicon.ico", false ],
+            [ "yahoo", "http://search.yahoo.com/search?p=%url_escaped%", "http://search.yahoo.com/favicon.ico", false ],
+            [ "gigablast", "http://www.gigablast.com/index.php?q=url:%url_escaped%", "http://www.gigablast.com/favicon.ico", false ],
+            [ "webcite", "http://webcitation.org/query.php?url=%url_escaped%", "http://webcitation.org/favicon.ico", false ],
+        ],
+    sounds: [
+            [ "3 beeps", "25881.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25881" ] ],
+            [ "2 blips", "26777.mp3", [ "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ],
+            [ "Beep & blip", "25885.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ],
+            [ "Buzz & blip", "9299.mp3", [ "drogue", "http://www.freesound.org/samplesViewSingle.php?id=7968", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=26777" ] ],
+            [ "Computer keyboard", "7968.mp3", [ "cfork", "http://www.freesound.org/samplesViewSingle.php?id=7968" ] ],
+            [ "Crystal glass", "35631.mp3", [ "reinsamba", "http://www.freesound.org/samplesViewSingle.php?id=35631" ] ],
+            [ "Electromechanical thunk", "35110.mp3", [ "digifishmusic", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=35110" ] ],
+            [ "Kick", "5540.mp3", [ "license", "http://www.freesound.org/samplesViewSingle.php?id=5540" ] ],
+            [ "Glockenspiel", "26875.mp3", [ "cfork", "http://www.freesound.org/samplesViewSingle.php?id=26875" ] ],
+            [ "Tongue click", "34208.mp3", [ "acclivity", "http://www.freesound.org/samplesViewSingle.php?id=25885", "junggle", "http://www.freesound.org/samplesViewSingle.php?id=34208" ] ],
+        ],
+    errorTypes: [
+        'protocolNotFound',
+        'fileNotFound',
+        'dnsNotFound',
+        'connectionFailure',
+        'netInterrupt',
+        'netTimeout',
+        'cspFrameAncestorBlocked',
+        'nssBadCert',
+        'nssFailure2',
+        'phishingBlocked',
+        'malwareBlocked',
+        'malformedURI',
+        'redirectLoop',
+        'unknownSocketType',
+        'netReset',
+        'netOffline',
+        'isprinting',
+        'deniedPortAccess',
+        'proxyResolveFailure',
+        'proxyConnectFailure',
+        'contentEncodingError',
+        'remoteXUL',
+        'unsafeContentType',
+    ],
     console: Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService),
     debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
@@ -10,8 +64,9 @@ var TryAgain_prefs = {
                             .getBranch("extensions.tryagain.");
             return pObj.getIntPref(s);
         } catch(e) {
-            TryAgain_prefs.error(e);
+            TryAgain_prefs.error("Failed to load preference " + s);
         }
+        return null;
     },
     savePreference: function(s, v) {
         try {
@@ -20,8 +75,26 @@ var TryAgain_prefs = {
                             .getBranch("extensions.tryagain.");
             pObj.setIntPref(s, parseInt(v));
         } catch(e) {
-            TryAgain_prefs.error(e);
+            TryAgain_prefs.error("Failed to save preference " + s);
         }
+    },
+    // URL might be window.location or document.documentURI
+    getVariable: function(url, variable) {
+        var query = url;
+        if (typeof query.search == "string") {
+            query = query.search.substring(1);
+        } else {
+            var pos = query.indexOf("?");
+            if (pos >= 0) query = query.substring(pos+1);
+        }
+        var vars = query.split("&");
+        for (var i=0;i<vars.length;i++) {
+            var pair = vars[i].split("=");
+            if (pair[0] == variable) {
+                return pair[1];
+            }
+        }
+        return "";
     },
     
     updateOptions: function(option) {
