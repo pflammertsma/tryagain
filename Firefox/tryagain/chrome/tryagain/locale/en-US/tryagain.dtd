@@ -22,6 +22,8 @@
 <!ENTITY options.other "Other">
 <!-- Name of the frame for style settings -->
 <!ENTITY options.style "Style">
+<!-- Name of the frame for page error settings (e.g. for retrying when a website returns HTTP 500 error) -->
+<!ENTITY options.page_errors "Page errors">
 <!-- Name of the frame for advanced settings -->
 <!ENTITY options.advanced "Advanced">
 

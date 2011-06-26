@@ -5,121 +5,118 @@
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         id="tryagain_options"
-        title="%AMP%options.title;"
+        title="&options.title;"
         buttons="accept, cancel"
         ondialogaccept="TryAgain_prefs.save();"
-        onload="TryAgain_prefs.load();"
-    >
-    <script type="application/x-javascript" src="chrome://tryagain/content/tryagain_options.js"/>
-   
-    <grid>
-        <rows>
-            <row style="padding-bottom: 1em;">
-                    <hbox>
-                        <image src="file://J:\Personal\TryAgain\Firefox\tryagain\chrome\tryagain\skin\biglogo.png" style="margin:0 20px; width:80px; height:80px;"/>
-                <vbox>
-                    <label class="header" value="&name.tryagain;" id="tryAgainTitle"/>
-                    <label value="version 1.0" id="tryAgainVersion"/>
-                    <spacer flex="1"/>
+        onload="TryAgain_prefs.load();">
+  <script type="application/x-javascript" src="chrome://tryagain/content/tryagain_options.js"/>
+ 
+  <grid>
+    <rows>
+      <row style="padding-bottom: 1em;">
+        <hbox>
+          <image src="file://J:\Personal\TryAgain\Firefox\tryagain\chrome\tryagain\skin\biglogo.png" style="margin:0 20px; width:80px; height:80px;"/>
+          <vbox>
+            <label class="header" value="&name.tryagain;" id="tryAgainTitle"/>
+            <label value="version 1.0" id="tryAgainVersion"/>
+            <spacer flex="1"/>
             <spacer flex="2"/>
             <grid>
-<rows>
-    <row>
-            <label class="text-link" href="http://getsatisfaction.com/tryagain" value="&options.support_site;"/>
-            <label class="text-link" href="http://www.facebook.com/pages/TryAgain/104402566286149" value="&options.facebook_page;"/>
-    </row>
-    <row>
-            <label class="text-link" href="http://www.babelzilla.org/index.php?option=com_wts&amp;Itemid=203&amp;extension=5426&amp;type=show" value="&options.translation_site;"/>
-            <label class="text-link" href="https://addons.mozilla.org/en-US/firefox/addon/2462/contribute/" value="&options.donation_page;"/>
-    </row>
-    </rows>
+              <rows>
+                <row>
+                  <label class="text-link" href="http://getsatisfaction.com/tryagain" value="&options.support_site;"/>
+                  <label class="text-link" href="http://www.facebook.com/pages/TryAgain/104402566286149" value="&options.facebook_page;"/>
+                </row>
+                <row>
+                  <label class="text-link" href="http://www.babelzilla.org/index.php?option=com_wts&amp;Itemid=203&amp;extension=5426&amp;type=show" value="&options.translation_site;"/>
+                  <label class="text-link" href="https://addons.mozilla.org/en-US/firefox/addon/2462/contribute/" value="&options.donation_page;"/>
+                </row>
+              </rows>
             </grid>
             <spacer flex="1"/>
-                </vbox>
-                    </hbox>
-            </row>
-            <row align="stretch" flex="1">
-                <tabbox>
-  <tabs>
-    <tab label="&options.general;"/>
-    <tab label="&options.advanced;"/>
-  </tabs>
-  <tabpanels>
-    <tabpanel id="mainTab">
-    <vbox>
-    <groupbox style="border:none;">
-        <vbox>
-            <checkbox id="tryagainEnabled" label="&options.enable;" accesskey="" />
-        </vbox>
-    </groupbox>
-    <groupbox>
-        <caption label="&options.other;"/>
-        <vbox>
-            <checkbox id="tryagainShowMenu" label="&options.showmenu;" accesskey="" />
-            <checkbox id="tryagainHideTips" label="&options.hidetips;" accesskey="" />
-        </vbox>
-    </groupbox>
-    </vbox>
-
-    <groupbox>
-        <caption label="&options.trying_again;"/>
-        <vbox>
-            <grid>
-                <columns>
-                    <column/>
-                    <column/>
-                    <column/>
-                    <column flex="1"/>
-                </columns>
-                <rows>
-                    <row align="center">
-                        <label value="&options.timeout;" style="padding-left:20px;" accesskey="" control="tryagainTimeout" />
-                        <textbox id="tryagainTimeout" type="number" min="1" style="width:5em;" />
-                        <label value="&options.seconds;" />
-                        <spacer flex="1"/>
-                    </row>
-                    <row>
-                        <checkbox id="tryagainRepeating" label="&options.repeat;" oncommand="TryAgain_prefs.updateOptions(this);" accesskey="" />
-                        <textbox id="tryagainRepeat" type="number" min="0" style="width:5em;"/>
-                        <spacer flex="1"/>
-                    </row>
-                </rows>
-            </grid>
-            <checkbox id="tryagainUseAuditing" label="&options.useauditing;" accesskey="" />
-        </vbox>
-    </groupbox>
-
-    </tabpanel>
-    <tabpanel id="advancedTab">
-
-    <vbox>
-        <label value="&options.when_max_reached;" accesskey="w" control="whenMaxReached" />
-        <radiogroup>
-            <radio label="&options.when_max_reached_stop_trying;" accesskey="s" selected="true"/>
-            <hbox align="center">
-                <radio label="&options.when_max_reached_start_again_after;" accesskey="t"/>
-                <textbox id="tryagainRetryTimeout" type="number" min="1" style="width:5em;" />
-                <label value="&options.minutes;" control="tryagainRetryTimeout" accesskey="m" />
-            </hbox>
-            <hbox align="center">
-                <radio label="&options.when_max_reached_navigate_using;" accesskey="n"/>
-                <menulist id="whenMaxReached" sizetopopup="pref" value="0" label="" preference="tryagain.whenMaxReached">
-            <menupopup>
-                <menuitem label="Coral CDN" value="0" />
-                <menuitem label="Google Cache" value="1" />
-                <menuitem label="Anonymouse" value="2" />
-            </menupopup>
-        </menulist>
-            </hbox>
-        </radiogroup>
-    </vbox>
-
-    </tabpanel>
-  </tabpanels>
-</tabbox>
-
-            </row>
-        </rows>
-    </grid>
-
+          </vbox>
+        </hbox>
+      </row>
+      <row align="stretch" flex="1">
+        <tabbox>
+          <tabs>
+            <tab label="&options.general;"/>
+            <tab label="&options.page_errors;" style="display:none;"/>
+            <tab label="&options.advanced;" style="display:none;"/>
+          </tabs>
+          <tabpanels>
+            <tabpanel id="mainTab">
+              <vbox>
+              <groupbox style="border:none;">
+                  <vbox>
+                      <checkbox id="tryagainEnabled" label="&options.enable;" accesskey="" />
+                  </vbox>
+              </groupbox>
+              <groupbox>
+                  <caption label="&options.other;"/>
+                  <vbox>
+                      <checkbox id="tryagainShowMenu" label="&options.showmenu;" accesskey="" />
+                      <checkbox id="tryagainHideTips" label="&options.hidetips;" accesskey="" />
+                  </vbox>
+              </groupbox>
+              </vbox>
+              <groupbox>
+                  <caption label="&options.trying_again;"/>
+                  <vbox>
+                      <grid>
+                          <columns>
+                              <column/>
+                              <column/>
+                              <column/>
+                              <column flex="1"/>
+                          </columns>
+                          <rows>
+                              <row align="center">
+                                  <label value="&options.timeout;" style="padding-left:20px;" accesskey="" control="tryagainTimeout" />
+                                  <textbox id="tryagainTimeout" type="number" min="1" style="width:5em;" />
+                                  <label value="&options.seconds;" />
+                                  <spacer flex="1"/>
+                              </row>
+                              <row>
+                                  <checkbox id="tryagainRepeating" label="&options.repeat;" oncommand="TryAgain_prefs.updateOptions(this);" accesskey="" />
+                                  <textbox id="tryagainRepeat" type="number" min="0" style="width:5em;"/>
+                                  <spacer flex="1"/>
+                              </row>
+                          </rows>
+                      </grid>
+                      <checkbox id="tryagainUseAuditing" label="&options.useauditing;" accesskey="" />
+                  </vbox>
+              </groupbox>
+            </tabpanel>
+            <tabpanel id="pageErrorTab">
+              <!-- implementation is mostly done, we just need a settings -->
+            </tabpanel>
+            <tabpanel id="advancedTab">
+              <vbox>
+                  <label value="&options.when_max_reached;" accesskey="w" control="whenMaxReached" />
+                  <radiogroup>
+                      <radio label="&options.when_max_reached_stop_trying;" accesskey="s" selected="true"/>
+                      <hbox align="center">
+                          <radio label="&options.when_max_reached_start_again_after;" accesskey="t"/>
+                          <textbox id="tryagainRetryTimeout" type="number" min="1" style="width:5em;" />
+                          <label value="&options.minutes;" control="tryagainRetryTimeout" accesskey="m" />
+                      </hbox>
+                      <hbox align="center">
+                          <radio label="&options.when_max_reached_navigate_using;" accesskey="n"/>
+                          <menulist id="whenMaxReached" sizetopopup="pref" value="0" label="" preference="tryagain.whenMaxReached">
+                      <menupopup>
+                          <menuitem label="Coral CDN" value="0" />
+                          <menuitem label="Google Cache" value="1" />
+                          <menuitem label="Anonymouse" value="2" />
+                      </menupopup>
+                  </menulist>
+                      </hbox>
+                  </radiogroup>
+              </vbox>
+            </tabpanel>
+          </tabpanels>
+        </tabbox>
+      </row>
+    </rows>
+  </grid>
 </dialog>

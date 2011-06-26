@@ -2,14 +2,15 @@ var TryAgain_prefs = {
     version: '3.4.7',
     downCheckServers: [
             [ "uptimeauditor", "http://www.uptimeauditor.com/quicksitecheck.php?x=%url%&src=%source%", "/(fail|ok).gif", "fail", "ok" ],
-            [ "downforeojm", "http://www.downforeveryoneorjustme.com/%url%?src=%source%", "<title>[^<]*(Is Up|Is Down) -> [^<]*</title>", "is down", "is up" ],
+            // [ "downforeojm", "http://www.downforeveryoneorjustme.com/%url%?src=%source%", "<title>[^<]*(Is Down|Is Up) -> [^<]*</title>", "is down", "is up" ],
+            [ "downforeveryone", "http://www.downforeveryone.com/%url%?src=%source%", "(looks down from here|is up for us)", "looks down from here", "is up for us" ],
         ],
     proxyServers: [
-            ['proxy.org', "'http://proxy.org/proxy.pl?url=%url_escaped%&proxy=proxify.com'"],
+            ['proxy.org', "http://proxy.org/proxy.pl?url=%url_escaped%&proxy=proxify.com"],
             ['anonymouse.org', "http://anonymouse.org/cgi-bin/anon-www.cgi/%url_escaped%"],
         ],
     cacheServices: [
-            [ "coral_cdn", "http://%domain%.nyud.net/%url_suffix_escaped%", "http://coralcdn.org/imgs/circles.ico", true ],
+            [ "coral_cdn", "http://%domain%.nyud.net/%url_suffix%", "http://coralcdn.org/imgs/circles.ico", true ],
             [ "google", "http://webcache.googleusercontent.com/search?q=cache:%url_escaped%", "http://google.com/favicon.ico", true ],
             [ "wayback", "http://web.archive.org/web/*/%url_escaped%", "http://web.archive.org/favicon.ico", false ],
             [ "bing", "http://www.bing.com/search?q=url:%url_escaped%", "http://www.bing.com/favicon.ico", false ],

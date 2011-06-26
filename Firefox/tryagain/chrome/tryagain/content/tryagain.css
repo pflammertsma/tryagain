@@ -43,6 +43,12 @@
   color: #b00000;
   font-weight: bold;
 }
+#tryagainList li.auditor a.left {
+  float: left;
+}
+#tryagainList li.auditor div {
+  margin-left: 10em;
+}
 
 html.tryagain {
   background-color: black;
@@ -115,5 +121,3 @@ html.tryagain #errorTitle p {
 html.tryagain #errorLongContent {
   padding-top: 2em;
 }
-html.tryagain {}
-
