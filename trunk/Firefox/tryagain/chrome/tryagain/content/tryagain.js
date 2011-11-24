@@ -14,7 +14,7 @@ var TryAgain = {
     isOnline: true,
     checkConflicts: true,
     hasConflict: false,
-    observeHTTP: true,
+    observeHTTP: false,
     notifySuccess: false,
     debug: function(msg) { TryAgain_prefs.console.logStringMessage(msg); },
     error: function(msg) { Components.utils.reportError(msg); },
@@ -1021,6 +1021,7 @@ var TryAgain = {
     // the status of all HTTP channels
     observe : function(aSubject, aTopic, aData) {
         try {
+            // FIXME confirm that QueryInterface still works in Fx10
             var httpChannel = aSubject.QueryInterface(Components.interfaces.nsIHttpChannel);
             if (httpChannel.responseStatus == 404) {
                 var window = TryAgain.windowFromChannel(httpChannel, aSubject);
